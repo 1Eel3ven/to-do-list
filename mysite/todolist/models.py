@@ -1,7 +1,7 @@
-from datetime import datetime, timedelta
-
 from django.db import models
-from django.utils import timezone
+
+class TaskGroup(models.Model):
+    name = models.CharField(max_length=50)
 
 class Task(models.Model):
     name = models.CharField(max_length=50)
@@ -20,3 +20,5 @@ class Task(models.Model):
     deadline = models.DateTimeField()
 
     is_completed = models.BooleanField(default=False)
+
+    group = models.ManyToManyField(TaskGroup)
