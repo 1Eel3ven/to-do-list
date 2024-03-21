@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html lang="en">
+    <meta charset="UTF-8">
+<body>
+    {% for task in task_list %}
+        <p>{{ task.name }} — {{ task.group_names }} — {{ task.priority }} — Do until {{ task.deadline }}</p>
+    {% endfor %}
+</body>
+</html>
