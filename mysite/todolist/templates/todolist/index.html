@@ -2,8 +2,13 @@
 <html lang="en">
     <meta charset="UTF-8">
 <body>
-    {% for task in task_list %}
-        <p>{{ task.name }} — {{ task.group_names }} — {{ task.priority }} — Do until {{ task.deadline }}</p>
-    {% endfor %}
+    <ul>
+        {% for task in task_list %}
+            <li>
+                <a href='{% url 'todolist:detail' task.id %}'>{{ task.name }}</a> 
+                — {{ task.group_names }} — {{ task.priority }} — Do until {{ task.deadline }}
+            </li>
+        {% endfor %}
+    <ul>
 </body>
 </html>
