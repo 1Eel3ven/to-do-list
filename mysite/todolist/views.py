@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, get_object_or_404
 from django.views import generic
 
 from .models import Task
@@ -25,3 +25,8 @@ class DetailView(generic.DetailView):
         task.group_names = " - ".join(group_names)
 
         return task
+    
+def CompleteTask(request, task_id):
+    task = get_object_or_404(Task, pk=task_id)
+    task.delete()
+    return redirect('todolist:index')

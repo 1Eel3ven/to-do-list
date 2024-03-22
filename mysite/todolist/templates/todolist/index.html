@@ -5,10 +5,24 @@
     <ul>
         {% for task in task_list %}
             <li>
-                <a href='{% url 'todolist:detail' task.id %}'>{{ task.name }}</a> 
-                — {{ task.group_names }} — {{ task.priority }} — Do until {{ task.deadline }}
+                <form id='task_form_{{ task.id }}' action="{% url 'todolist:complete_task' task.id %}" method="POST">
+                    {% csrf_token %}
+
+                    <input type='checkbox' id='task_{{ task.id }}' onclick='submitForm("task_form_{{ task.id }}")'></input>
+                    <label for='task_{{ task.id }}'>
+                        <a href='{% url 'todolist:detail' task.id %}'>{{ task.name }}</a> 
+                        — {{ task.group_names }} — {{ task.priority }} — Do until {{ task.deadline }}
+                    </label>
+                </form>
             </li>
         {% endfor %}
     <ul>
+
+    <script>
+        function submitForm(formId) {
+            var form = document.getElementById(formId);
+            form.submit();
+        }
+    </script>
 </body>
 </html>
