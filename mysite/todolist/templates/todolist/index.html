@@ -1,24 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
-    <meta charset="UTF-8">
-<body>
+{% extends 'todolist/base.html' %}
+
+<head>
+    {% load static %}
+</head>
+
+{% block content %}
     {% if task_list %}
         <ul>
             {% for task in task_list %}
                 <li>
-                    <form id='task_form_{{ task.id }}' action="{% url 'todolist:complete_task' task.id %}" method="POST">
+                    <form id='task_form_{{ task.id }}' action="{% url 'todolist:complete_task' task.id %}" method="POST" class='task_flex_container'>
                         {% csrf_token %}
 
-                        <input type='checkbox' id='task_{{ task.id }}' onclick='submitForm("task_form_{{ task.id }}")'></input>
+                        <input type='image' class='index_checkbox' id='task_{{ task.id }}' 
+                        src='{% static 'todolist/images/checkbox1.png' %}' onmouseover='hover(this);' onmouseout='unhover(this);'>
                         
-                        <label for='task_{{ task.id }}'>
-                            <a href='{% url 'todolist:detail' task.id %}'>{{ task.name }}</a> 
-                            — {{ task.group_names }} — {{ task.priority }} — 
-                            {% if not task.is_outdated %}
-                                Do until {{ task.deadline }}
-                            {% else %}
-                                Outdated
-                            {% endif %}
+                        <label for='task_{{ task.id }}' class='task_grid_container'>
+                            <div>
+                                <a href='{% url 'todolist:detail' task.id %}'>{{ task.name }}</a>
+                            </div>
+                            <div>
+                                {{ task.group_names }}
+                            </div>
+                            <div>
+                                {{ task.priority }}
+                            </div>
+                            <div>
+                                {% if not task.is_outdated %}
+                                    Do until {{ task.deadline }}
+                                {% else %}
+                                    <span class='outdated'>Outdated</span>
+                                {% endif %}
+                            </div>
                         </label>
                     </form>
                 </li>
@@ -29,10 +42,12 @@
     {% endif %}
 
     <script>
-        function submitForm(formId) {
-            var form = document.getElementById(formId);
-            form.submit();
+        function hover(element) {
+            element.setAttribute('src', '{% static 'todolist/images/checkbox2.png' %}');
+        }
+          
+        function unhover(element) {
+            element.setAttribute('src', '{% static 'todolist/images/checkbox1.png' %}');
         }
     </script>
-</body>
-</html>
+{% endblock %}

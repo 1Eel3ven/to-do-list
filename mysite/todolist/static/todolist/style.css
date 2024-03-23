@@ -1,0 +1,59 @@
+body {
+    background-color: #393E41;
+    color: white;
+    font-size: 25px;
+}
+
+.title {
+    background-color: #F03A47;
+    padding: 30px;
+    margin: -20px -7px 50px -7px;
+}
+
+.index_checkbox {
+    width: 24px;
+    height: 24px;
+}
+
+ul {
+    list-style-type: none;
+}
+
+a {
+    color: white;
+    text-decoration: none;
+}
+
+.task_flex_container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
+    margin: 10px;
+}
+
+.task_grid_container {
+    display: grid;
+    grid-template-columns: 300px 300px 300px 600px;
+}
+
+input[type=image] {
+    margin-right: 40px;
+    align-self: baseline;
+}
+
+.outdated {
+    color: red;
+}
+
+.detail_flex_container {
+    display: flex;
+    flex-direction: column;
+
+    margin-left: 20px;
+}
+
+.detail_flex_container > div {
+    margin: 0px 10px;
+}

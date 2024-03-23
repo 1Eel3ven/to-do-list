@@ -1,13 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-    <meta charset="UTF-8">
-<body>
-    <h2>{{ task.name }}</h2>
-    <p>Groups: {{ task.group_names }}</p>
-    <p>{{ task.description }}</p>
-    <p style='text-align:right'>
-        Created: {{ task.creation_date }}<br>
-        Deadline: {{ task.deadline }}
-    </p>
-</body>
-</html>
+{% extends 'todolist/base.html' %}
+
+{% block content %}
+    <div class='detail_flex_container'>
+        <div>
+            <h2>{{ task.name }}</h2>
+        </div>
+        <div>
+            <h3>Groups:</h3>
+            <p>{{ task.group_names }}</p>
+        </div>
+        <div>
+            <h3>Description</h3>
+            <p>{{ task.description }}</p>
+        </div>
+
+        <div style='text-align:right'>
+            Created: {{ task.creation_date }}<br>
+            Deadline: {{ task.deadline }}
+        </div>
+    </div>
+{% endblock %}

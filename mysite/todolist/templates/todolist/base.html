@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>WorkDone List</title>
+        <meta charset="utf-8"/>
+
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'todolist/style.css' %}">
+    </head>
+    <body>
+        <header>
+            <h1 class="title">WorkDone List</h1>
+        </header>
+
+        <main>
+            {% block content %}
+            {% endblock %}
+        </main>
+    </body>
+</html>
