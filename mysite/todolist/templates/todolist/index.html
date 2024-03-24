@@ -15,7 +15,7 @@
                         <input type='image' class='index_checkbox' id='task_{{ task.id }}' 
                         src='{% static 'todolist/images/checkbox1.png' %}' onmouseover='hover(this);' onmouseout='unhover(this);'>
                         
-                        <label for='task_{{ task.id }}' class='task_grid_container'>
+                        <div class='task_grid_container'>
                             <div>
                                 <a href='{% url 'todolist:detail' task.id %}'>{{ task.name }}</a>
                             </div>
@@ -32,13 +32,13 @@
                                     <span class='outdated'>Outdated</span>
                                 {% endif %}
                             </div>
-                        </label>
+                        </div>
                     </form>
                 </li>
             {% endfor %}
         <ul>
     {% else %}
-        <p>You dont have tasks for now.</p>
+        <p style='text-align: center'>You dont have tasks for now.</p>
     {% endif %}
 
     <script>
