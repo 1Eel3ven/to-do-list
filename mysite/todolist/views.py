@@ -1,7 +1,7 @@
 from django.shortcuts import redirect, get_object_or_404
 from django.views import generic
 
-from .models import Task
+from .models import Task, TaskForm
 
 class IndexView(generic.ListView):
     template_name = 'todolist/index.html'
@@ -14,6 +14,11 @@ class IndexView(generic.ListView):
             task.group_names = " - ".join(group_names)
 
         return task_list
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['task_form'] = TaskForm()
+        return context
 
 class DetailView(generic.DetailView):
     model = Task
@@ -30,3 +35,6 @@ def CompleteTask(request, task_id):
     task = get_object_or_404(Task, pk=task_id)
     task.delete()
     return redirect('todolist:index')
+
+def CreateTask(request):
+    pass

@@ -39,7 +39,7 @@ a {
 
 .task_grid_container {
     display: grid;
-    grid-template-columns: 300px 300px 300px 600px;
+    grid-template-columns: 300px 300px 300px 300px;
 }
 
 .task_flex_container:hover {
@@ -57,6 +57,51 @@ input[type=image] {
 .outdated {
     color: red;
 }
+
+.task_create_open {
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+
+    padding: 10px;
+    margin: auto auto auto -30px;
+    border: 1px solid #AF5B5B;
+    border-radius: 15px;
+
+    transition: background-color 0.3s;
+}
+
+.task_create_open:hover {
+    background-color: #AF5B5B;
+}
+  
+.task_create_form {
+    display: none;
+    position: absolute;
+    cursor: move;
+
+    border: 5px solid #AF5B5B;
+    z-index: 9;
+}
+  
+.task_create_form_container {
+    padding: 40px 80px;
+    background-color: #F6F4F3;
+    color: black;
+}
+
+.task_create_form_legend {
+    text-align: center;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.task_create_form_save {
+    width: 50%;
+    margin-left: 25%;
+    padding: 10px;
+}
+
 
 .detail_flex_container {
     display: flex;

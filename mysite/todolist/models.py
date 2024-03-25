@@ -1,5 +1,13 @@
 from django.db import models
 from django.utils import timezone
+from django.forms import ModelForm, CharField, TextInput
+
+PRIORITYCHOICES = [
+       ('Low', 'Low'),
+       ('Medium', 'Medium'),
+       ('High', 'High'),
+       ('Critical', 'Critical'),
+   ]
 
 class TaskGroup(models.Model):
     name = models.CharField(max_length=50)
@@ -10,13 +18,6 @@ class TaskGroup(models.Model):
 class Task(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=255)
-
-    PRIORITYCHOICES = [
-       ('Low', 'Low'),
-       ('Medium', 'Medium'),
-       ('High', 'High'),
-       ('Critical', 'Critical'),
-   ]
     
     priority = models.CharField(max_length=10, choices=PRIORITYCHOICES)
 
@@ -30,3 +31,11 @@ class Task(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class TaskForm(ModelForm):
+    deadline = CharField(widget=TextInput(attrs={'type':'time'}))
+
+    class Meta:
+        model = Task
+        fields = ['name', 'description', 'priority', 'deadline', 'group']

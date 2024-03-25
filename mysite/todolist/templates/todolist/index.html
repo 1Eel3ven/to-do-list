@@ -9,7 +9,7 @@
         <ul>
             {% for task in task_list %}
                 <li>
-                    <form id='task_form_{{ task.id }}' action="{% url 'todolist:complete_task' task.id %}" method="POST" class='task_flex_container'>
+                    <form id='task_form_{{ task.id }}' action='{% url 'todolist:complete_task' task.id %}' method="POST" class='task_flex_container'>
                         {% csrf_token %}
 
                         <input type='image' class='index_checkbox' id='task_{{ task.id }}' 
@@ -41,6 +41,19 @@
         <p style='text-align: center'>You dont have tasks for now.</p>
     {% endif %}
 
+    <div class='task_create_open' onclick='openForm()'>Create task</div>
+
+    <div class='task_create_form' id='task_form'>
+        <form method='POST' class='task_create_form_container'>
+            {% csrf_token %}
+            <legend class='task_create_form_legend'>Create new task</legend>
+            {{ task_form.as_p }}
+            <button type='submit' class='task_create_form_save'>Save</button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <script>
         function hover(element) {
             element.setAttribute('src', '{% static 'todolist/images/checkbox2.png' %}');
@@ -49,5 +62,20 @@
         function unhover(element) {
             element.setAttribute('src', '{% static 'todolist/images/checkbox1.png' %}');
         }
+
+        function openForm() {           
+            var taskForm = document.getElementById('task_form');
+            
+            if (taskForm.style.display === "block") {
+                taskForm.style.display = "none";
+            }
+            else {
+                taskForm.style.display = "block";
+            }
+        }
+
+        $(function() {
+            $('#task_form').draggable();
+        });
     </script>
 {% endblock %}
