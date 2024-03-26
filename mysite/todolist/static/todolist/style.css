@@ -112,4 +112,11 @@ input[type=image] {
 
 .detail_flex_container > div {
     margin: 0px 10px;
+
+    border-bottom: 2px solid #AF5B5B;
+}
+
+.detail_time_info {
+    text-align: right;
+    padding: 15px 0px;
 }

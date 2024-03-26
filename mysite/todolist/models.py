@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils import timezone
-from django.forms import ModelForm, CharField, TextInput
+from django.forms import ModelForm, CharField, DateTimeInput
 
 PRIORITYCHOICES = [
        ('Low', 'Low'),
@@ -34,7 +34,7 @@ class Task(models.Model):
 
 
 class TaskForm(ModelForm):
-    deadline = CharField(widget=TextInput(attrs={'type':'time'}))
+    deadline = CharField(widget=DateTimeInput(attrs={'type':'datetime-local'}))
 
     class Meta:
         model = Task

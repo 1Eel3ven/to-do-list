@@ -1,7 +1,8 @@
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404, HttpResponseRedirect
 from django.views import generic
+from django.urls import reverse
 
-from .models import Task, TaskForm
+from .models import Task, TaskForm, TaskGroup
 
 class IndexView(generic.ListView):
     template_name = 'todolist/index.html'
@@ -37,4 +38,15 @@ def CompleteTask(request, task_id):
     return redirect('todolist:index')
 
 def CreateTask(request):
-    pass
+    if request.method == "POST":
+        form = TaskForm(request.POST)
+
+        if form.is_valid():
+            cleaned_data = form.cleaned_data
+            groups = cleaned_data.pop('group') # Removing many-to-many field from cleaned_data
+
+            new_task = Task.objects.create(**cleaned_data)
+            new_task.group.set(groups)
+            new_task.save()
+
+    return HttpResponseRedirect(reverse('todolist:index'))

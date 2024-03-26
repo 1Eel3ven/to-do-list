@@ -43,8 +43,8 @@
 
     <div class='task_create_open' onclick='openForm()'>Create task</div>
 
-    <div class='task_create_form' id='task_form'>
-        <form method='POST' class='task_create_form_container'>
+    <div class='task_create_form' id='task_create_form'>
+        <form method='POST' class='task_create_form_container' action='{% url 'todolist:create_task' %}'>
             {% csrf_token %}
             <legend class='task_create_form_legend'>Create new task</legend>
             {{ task_form.as_p }}
@@ -64,7 +64,7 @@
         }
 
         function openForm() {           
-            var taskForm = document.getElementById('task_form');
+            var taskForm = document.getElementById('task_create_form');
             
             if (taskForm.style.display === "block") {
                 taskForm.style.display = "none";
@@ -75,7 +75,7 @@
         }
 
         $(function() {
-            $('#task_form').draggable();
+            $('#task_create_form').draggable();
         });
     </script>
 {% endblock %}
