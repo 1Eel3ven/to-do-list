@@ -17,7 +17,7 @@ class TaskGroup(models.Model):
 
 class Task(models.Model):
     name = models.CharField(max_length=50)
-    description = models.CharField(max_length=255)
+    description = models.CharField(max_length=255, blank=True)
     
     priority = models.CharField(max_length=10, choices=PRIORITYCHOICES)
 

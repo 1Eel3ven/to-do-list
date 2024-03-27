@@ -41,14 +41,27 @@
         <p style='text-align: center'>You dont have tasks for now.</p>
     {% endif %}
 
-    <div class='task_create_open' onclick='openForm()'>Create task</div>
+    <div class='task_create_open' onclick="openForm('task_create_form')">Create task</div>
 
     <div class='task_create_form' id='task_create_form'>
         <form method='POST' class='task_create_form_container' action='{% url 'todolist:create_task' %}'>
             {% csrf_token %}
             <legend class='task_create_form_legend'>Create new task</legend>
             {{ task_form.as_p }}
+            <button type='button' class='task_create_form_add_group_button' onclick="openForm('task_add_group')">Add group</button>
+
             <button type='submit' class='task_create_form_save'>Save</button>
+        </form>
+    </div>
+
+    <div class='task_add_group_form' id='task_add_group'>
+        <form method='POST' class='task_add_group_form_container' action='{% url 'todolist:add_group' %}'>
+            {% csrf_token %}
+            <legend class='task_add_group_form_legend'>Add new group</legend>
+
+            <input type='text' class='add_group_name_input' name='group_name' maxlength='50' placeholder='Group name' required>
+            
+            <button type='submit' class='task_add_group_form_save'>Save</button>
         </form>
     </div>
 
@@ -63,14 +76,14 @@
             element.setAttribute('src', '{% static 'todolist/images/checkbox1.png' %}');
         }
 
-        function openForm() {           
-            var taskForm = document.getElementById('task_create_form');
+        function openForm(element) {           
+            var form = document.getElementById(element);
             
-            if (taskForm.style.display === "block") {
-                taskForm.style.display = "none";
+            if (form.style.display === "block") {
+                form.style.display = "none";
             }
             else {
-                taskForm.style.display = "block";
+                form.style.display = "block";
             }
         }
 

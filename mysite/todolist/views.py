@@ -50,3 +50,11 @@ def CreateTask(request):
             new_task.save()
 
     return HttpResponseRedirect(reverse('todolist:index'))
+
+def AddGroup(request):
+    if request.method == "POST":
+        group_name = request.POST.get('group_name')
+        new_group = TaskGroup.objects.create(name=group_name)
+        new_group.save()
+
+    return HttpResponseRedirect(reverse('todolist:index'))

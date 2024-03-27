@@ -75,7 +75,7 @@ input[type=image] {
     background-color: #AF5B5B;
 }
   
-.task_create_form {
+.task_create_form, .task_add_group_form {
     display: none;
     position: absolute;
     cursor: move;
@@ -84,13 +84,13 @@ input[type=image] {
     z-index: 9;
 }
   
-.task_create_form_container {
+.task_create_form_container, .task_add_group_form_container {
     padding: 40px 80px;
     background-color: #F6F4F3;
     color: black;
 }
 
-.task_create_form_legend {
+.task_create_form_legend, .task_add_group_form_legend {
     text-align: center;
     font-size: 30px;
     font-weight: bold;
@@ -100,6 +100,11 @@ input[type=image] {
     width: 50%;
     margin-left: 25%;
     padding: 10px;
+}
+
+.task_add_group_form {
+    left: 40%;
+    cursor: auto;
 }
 
 
