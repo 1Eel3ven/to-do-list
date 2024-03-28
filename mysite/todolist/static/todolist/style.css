@@ -39,7 +39,17 @@ a {
 
 .task_grid_container {
     display: grid;
-    grid-template-columns: 300px 300px 300px 300px;
+    grid-template-columns: 300px 300px 300px 300px 24px;
+}
+
+.task_edit_button {
+    opacity: 0;
+    cursor: pointer;
+
+    width: 24px;
+    height: 24px;
+
+    transition: opacity 0.3s;
 }
 
 .task_flex_container:hover {
@@ -47,6 +57,10 @@ a {
 
     border: 1px solid #5d656a;
     border-radius: 15px;
+}
+
+.task_flex_container:hover .task_grid_container .task_edit_button {
+    opacity: 1;
 }
 
 input[type=image] {
@@ -96,15 +110,28 @@ input[type=image] {
     font-weight: bold;
 }
 
+.task_create_form_add_group_button {
+    margin: 0 0 10% 24%;
+    background-color: #F03A47;
+    font-weight: 600;
+}
+
 .task_create_form_save {
     width: 50%;
     margin-left: 25%;
     padding: 10px;
+    background-color: #F03A47;
+    font-weight: 700;
 }
 
 .task_add_group_form {
     left: 40%;
     cursor: auto;
+}
+
+.task_add_group_form_save {
+    background-color: #F03A47;
+    font-weight: 600;
 }
 
 

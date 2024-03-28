@@ -32,6 +32,9 @@
                                     <span class='outdated'>Outdated</span>
                                 {% endif %}
                             </div>
+                            <div class='task_edit'>
+                                <img src='{% static 'todolist/images/edit.png' %}' class='task_edit_button'>
+                            </div>
                         </div>
                     </form>
                 </li>
@@ -66,6 +69,7 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <script>
         function hover(element) {
             element.setAttribute('src', '{% static 'todolist/images/checkbox2.png' %}');
