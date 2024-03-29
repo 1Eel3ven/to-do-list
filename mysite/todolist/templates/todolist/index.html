@@ -32,9 +32,9 @@
                                     <span class='outdated'>Outdated</span>
                                 {% endif %}
                             </div>
-                            <div class='task_edit'>
+                            <a class='task_edit' href='{% url 'todolist:edit' task.id %}'>
                                 <img src='{% static 'todolist/images/edit.png' %}' class='task_edit_button'>
-                            </div>
+                            </a>
                         </div>
                     </form>
                 </li>

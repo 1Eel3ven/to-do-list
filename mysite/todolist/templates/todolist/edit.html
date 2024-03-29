@@ -1,0 +1,14 @@
+{% extends 'todolist/base.html' %}
+
+{% block content %}
+    <form class='edit_flex_container' action='{% url 'todolist:edit_task' task.id}' method="POST">
+        {% for field in task_form %}
+        <div>
+            {{ field.label }}:
+            {{ field }}
+        </div>
+        {% endfor %}
+
+        <button type='submit' class='edit_flex_container_save'>Save</button>
+    </form>
+{% endblock %}

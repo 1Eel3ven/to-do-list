@@ -1,4 +1,4 @@
-from django.shortcuts import redirect, get_object_or_404, HttpResponseRedirect, HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404, HttpResponseRedirect
 from django.views import generic
 from django.urls import reverse
 
@@ -37,8 +37,19 @@ def CompleteTask(request, task_id):
     task.delete()
     return redirect('todolist:index')
 
-def EditTask(request, task_id):
-    return HttpResponse('test')
+class EditView(generic.DetailView):
+    model = Task
+    queryset = Task.objects.all()
+    template_name = 'todolist/edit.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        task = get_object_or_404(Task, pk=self.kwargs['pk'])
+        context['task_form'] = TaskForm(instance=task)
+        return context
+    
+def EditTask(request):
+    pass
 
 def CreateTask(request):
     if request.method == "POST":
