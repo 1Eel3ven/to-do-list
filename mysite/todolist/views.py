@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, get_object_or_404, HttpResponseRedirect
+from django.shortcuts import redirect, get_object_or_404, HttpResponseRedirect, Http404
 from django.views import generic
 from django.urls import reverse
 
@@ -48,8 +48,26 @@ class EditView(generic.DetailView):
         context['task_form'] = TaskForm(instance=task)
         return context
     
-def EditTask(request):
-    pass
+def EditTask(request, task_id):
+    try:
+        task = Task.objects.get(pk=task_id)
+    except Task.DoesNotExist:
+        raise Http404("Task does not exist")
+
+    if request.method == "POST":
+        form = TaskForm(request.POST)
+
+        if form.is_valid():
+            cleaned_data = form.cleaned_data
+            groups = cleaned_data.pop('group') # Removing many-to-many field from cleaned_data
+
+            Task.objects.filter(pk=task_id).update(**cleaned_data)
+
+            task = Task.objects.get(pk=task_id)
+            task.group.set(groups)
+            task.save()
+
+    return HttpResponseRedirect(reverse('todolist:index'))
 
 def CreateTask(request):
     if request.method == "POST":
@@ -57,7 +75,7 @@ def CreateTask(request):
 
         if form.is_valid():
             cleaned_data = form.cleaned_data
-            groups = cleaned_data.pop('group') # Removing many-to-many field from cleaned_data
+            groups = cleaned_data.pop('group')
 
             new_task = Task.objects.create(**cleaned_data)
             new_task.group.set(groups)
@@ -71,4 +89,4 @@ def AddGroup(request):
         new_group = TaskGroup.objects.create(name=group_name)
         new_group.save()
 
-    return HttpResponseRedirect(reverse('todolist:index'))
+    return redirect(request.META.get('HTTP_REFERER', '/'))

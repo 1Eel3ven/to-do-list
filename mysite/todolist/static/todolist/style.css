@@ -95,11 +95,13 @@ input[type=image] {
     cursor: move;
 
     border: 5px solid #AF5B5B;
+    border-radius: 15px;
     z-index: 9;
 }
   
 .task_create_form_container, .task_add_group_form_container {
     padding: 40px 80px;
+    border-radius: 10px;
     background-color: #F6F4F3;
     color: black;
 }
@@ -112,26 +114,43 @@ input[type=image] {
 
 .task_create_form_add_group_button {
     margin: 0 0 10% 24%;
+    padding: 5px;
+    border-radius: 5px;
+
     background-color: #F03A47;
     font-weight: 600;
+    cursor: pointer;
+
+    transition: background-color 0.3s;
 }
 
 .task_create_form_save {
     width: 50%;
     margin-left: 25%;
     padding: 10px;
+    border-radius: 10px;
+
     background-color: #F03A47;
     font-weight: 700;
+    cursor: pointer;
+
+    transition: background-color 0.3s;
 }
 
 .task_add_group_form {
     left: 40%;
-    cursor: auto;
+    top: 50%;
 }
 
 .task_add_group_form_save {
+    padding: 5px;
+    border-radius: 5px;
+
     background-color: #F03A47;
     font-weight: 600;
+    cursor: pointer;
+
+    transition: background-color 0.3s;
 }
 
 
@@ -178,11 +197,33 @@ input[type=image] {
     width: 25%;
 }
 
-.edit_flex_container_save {
-    width: 10%;
+.task_edit_add_group_button {
+    width: 15%;
     padding: 10px;
+    border-radius: 10px;
+
+    background-color: #F03A47;
+    font-weight: 600;
+    cursor: pointer;
+
+    transition: background-color 0.3s;
+}
+
+.edit_flex_container_save {
+    width: 15%;
+    padding: 15px;
+    border-radius: 10px;
+
     align-self: center;
 
     background-color: #F03A47;
     font-weight: 600;
+    cursor: pointer;
+
+    transition: background-color 0.3s;
+}
+
+.task_edit_add_group_button:hover, .task_create_form_add_group_button:hover, .edit_flex_container_save:hover, 
+.task_create_form_save:hover, .task_add_group_form_save:hover {
+    background-color: #AF5B5B;
 }
