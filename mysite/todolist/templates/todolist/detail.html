@@ -25,4 +25,8 @@
             Deadline: {{ task.deadline }}
         </div>
     </div>
+
+    <a href='{% url 'todolist:edit' task.id %}'>
+        <button type='button' class='detail_edit_button btns'>Edit</button>
+    </a>
 {% endblock %}

@@ -89,7 +89,7 @@ input[type=image] {
     background-color: #AF5B5B;
 }
   
-.task_create_form, .task_add_group_form {
+.task_create_form, .task_add_group_form, .task_delete_group_form {
     display: none;
     position: absolute;
     cursor: move;
@@ -99,21 +99,21 @@ input[type=image] {
     z-index: 9;
 }
   
-.task_create_form_container, .task_add_group_form_container {
+.task_create_form_container, .task_add_group_form_container, .task_delete_group_form_container {
     padding: 40px 80px;
     border-radius: 10px;
     background-color: #F6F4F3;
     color: black;
 }
 
-.task_create_form_legend, .task_add_group_form_legend {
+.task_create_form_legend, .task_add_group_form_legend, .task_delete_group_form_legend {
     text-align: center;
     font-size: 30px;
     font-weight: bold;
 }
 
-.task_create_form_add_group_button {
-    margin: 0 0 10% 24%;
+.task_create_form_add_group_button, .task_create_form_delete_group_button {
+    margin: 0 0 10% 20%;
     padding: 5px;
     border-radius: 5px;
 
@@ -122,6 +122,10 @@ input[type=image] {
     cursor: pointer;
 
     transition: background-color 0.3s;
+}
+
+.task_create_form_delete_group_button {
+    margin: auto;
 }
 
 .task_create_form_save {
@@ -137,12 +141,12 @@ input[type=image] {
     transition: background-color 0.3s;
 }
 
-.task_add_group_form {
+.task_add_group_form, .task_delete_group_form {
     left: 40%;
     top: 50%;
 }
 
-.task_add_group_form_save {
+.task_add_group_form_save, .task_delete_group_form_save {
     padding: 5px;
     border-radius: 5px;
 
@@ -151,6 +155,20 @@ input[type=image] {
     cursor: pointer;
 
     transition: background-color 0.3s;
+}
+
+.task_delete_group_form_content {
+    margin-top: 20px;
+    
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+}
+
+.task_delete_group_form_save {
+    padding: 10px;
+    border-radius: 10px;
 }
 
 
@@ -170,6 +188,19 @@ input[type=image] {
 .detail_time_info {
     text-align: right;
     padding: 15px 0px;
+}
+
+.detail_edit_button {
+    width: 10%;
+    padding: 15px;
+    border-radius: 15px;
+    margin: 15px 0 0 28px;
+
+    background-color: #F03A47;
+    font-weight: 600;
+    cursor: pointer;
+
+    transition: background-color 0.3s;
 }
 
 
@@ -223,7 +254,6 @@ input[type=image] {
     transition: background-color 0.3s;
 }
 
-.task_edit_add_group_button:hover, .task_create_form_add_group_button:hover, .edit_flex_container_save:hover, 
-.task_create_form_save:hover, .task_add_group_form_save:hover {
+.btns:hover {
     background-color: #AF5B5B;
 }

@@ -51,9 +51,11 @@
             {% csrf_token %}
             <legend class='task_create_form_legend'>Create new task</legend>
             {{ task_form.as_p }}
-            <button type='button' class='task_create_form_add_group_button' onclick="openForm('task_add_group')">Add group</button>
 
-            <button type='submit' class='task_create_form_save'>Save</button>
+            <button type='button' class='task_create_form_add_group_button btns' onclick="openForm('task_add_group')">Add group</button>
+            <button type='button' class='task_create_form_delete_group_button btns' onclick="openForm('task_delete_group')">Delete group</button>
+
+            <button type='submit' class='task_create_form_save btns'>Save</button>
         </form>
     </div>
 
@@ -64,7 +66,21 @@
 
             <input type='text' class='add_group_name_input' name='group_name' maxlength='50' placeholder='Group name' required>
             
-            <button type='submit' class='task_add_group_form_save'>Save</button>
+            <button type='submit' class='task_add_group_form_save btns'>Save</button>
+        </form>
+    </div>
+
+    <div class='task_delete_group_form' id='task_delete_group'>
+        <form method='POST' class='task_delete_group_form_container' action='{% url 'todolist:delete_group' %}'>
+            {% csrf_token %}
+            <legend class='task_delete_group_form_legend'>Delete group</legend>
+
+            <div class='task_delete_group_form_content'>
+                <label>Select group</label>
+                {{ task_form.group }}
+                
+                <button type='submit' class='task_delete_group_form_save btns'>Delete</button>
+            </div>
         </form>
     </div>
 

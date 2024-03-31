@@ -11,9 +11,9 @@
         </div>
         {% endfor %}
 
-        <button type='button' class='task_edit_add_group_button' onclick="openForm('task_add_group')">Add group</button>
+        <button type='button' class='task_edit_add_group_button btns' onclick="openForm('task_add_group')">Add group</button>
 
-        <button type='submit' class='edit_flex_container_save'>Save</button>
+        <button type='submit' class='edit_flex_container_save btns'>Save</button>
     </form>
 
     <div class='task_add_group_form' id='task_add_group'>
@@ -23,9 +23,10 @@
 
             <input type='text' class='add_group_name_input' name='group_name' maxlength='50' placeholder='Group name' required>
             
-            <button type='submit' class='task_add_group_form_save'>Save</button>
+            <button type='submit' class='task_add_group_form_save btns'>Save</button>
         </form>
     </div>
+    
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
