@@ -1,9 +1,11 @@
 {% extends 'todolist/base.html' %}
 
 {% block content %}
+    <!-- Main form -->
     <form class='edit_flex_container' action='{% url 'todolist:edit_task' task.id %}' method="POST">
         {% csrf_token %}
 
+        <!-- Fields -->
         {% for field in task_form %}
         <div class='edit_flex_container_items'>
             {{ field.label }}:
@@ -11,6 +13,7 @@
         </div>
         {% endfor %}
 
+        <!-- Buttons for group managing-->
         <div class='edit_buttons'>
             <button type='button' class='task_edit_add_group_button btns' onclick="openForm('task_add_group')">Add group</button>
             <button type='button' class='task_edit_delete_group_button btns' onclick="openForm('task_delete_group')">Delete group</button>
@@ -19,6 +22,7 @@
         <button type='submit' class='edit_flex_container_save btns'>Save</button>
     </form>
 
+    <!-- Pop-up windows -->
     <div class='task_add_group_form' id='task_add_group'>
         <form method='POST' class='task_add_group_form_container' action='{% url 'todolist:add_group' %}'>
             {% csrf_token %}

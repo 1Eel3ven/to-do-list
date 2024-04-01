@@ -6,6 +6,7 @@
 
 {% block content %}
     {% if task_list %}
+        <!-- List of tasks -->
         <ul>
             {% for task in task_list %}
                 <li>
@@ -20,7 +21,12 @@
                                 <a href='{% url 'todolist:detail' task.id %}'>{{ task.name }}</a>
                             </div>
                             <div>
-                                {{ task.group_names }}
+                                {% if task.group_names %}
+                                    {{ task.group_names }}
+                                {% else %}
+                                    <!-- Display appropriate message if task doesnt have groups -->
+                                    No groups
+                                {% endif %}
                             </div>
                             <div>
                                 {{ task.priority }}
@@ -29,6 +35,7 @@
                                 {% if not task.is_outdated %}
                                     Do until {{ task.deadline }}
                                 {% else %}
+                                    <!-- Display appropriate message if task is beyond deadline-->
                                     <span class='outdated'>Outdated</span>
                                 {% endif %}
                             </div>
@@ -41,17 +48,21 @@
             {% endfor %}
         <ul>
     {% else %}
+        <!-- Message if no tasks -->
         <p style='text-align: center'>You dont have tasks for now.</p>
     {% endif %}
-
+    
+    <!-- Create task button, pop-up for create interface after it -->
     <div class='task_create_open' onclick="openForm('task_create_form')">Create task</div>
 
+    <!-- Pop-up windows -->
     <div class='task_create_form' id='task_create_form'>
         <form method='POST' class='task_create_form_container' action='{% url 'todolist:create_task' %}'>
             {% csrf_token %}
             <legend class='task_create_form_legend'>Create new task</legend>
             {{ task_form.as_p }}
 
+            <!-- Buttons for group managing -->
             <button type='button' class='task_create_form_add_group_button btns' onclick="openForm('task_add_group')">Add group</button>
             <button type='button' class='task_create_form_delete_group_button btns' onclick="openForm('task_delete_group')">Delete group</button>
 
@@ -113,7 +124,7 @@
         $(function() {
             $('#task_add_group').draggable();
         });
-        
+
         $(function() {
             $('#task_delete_group').draggable();
         });
