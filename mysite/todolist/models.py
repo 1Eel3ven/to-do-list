@@ -39,3 +39,8 @@ class TaskForm(ModelForm):
     class Meta:
         model = Task
         fields = ['name', 'description', 'priority', 'deadline', 'group']
+
+class GroupForm(ModelForm):
+    class Meta:
+        model = Task
+        fields = ['group']

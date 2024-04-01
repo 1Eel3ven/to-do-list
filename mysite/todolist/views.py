@@ -2,7 +2,7 @@ from django.shortcuts import redirect, get_object_or_404, HttpResponseRedirect, 
 from django.views import generic
 from django.urls import reverse
 
-from .models import Task, TaskGroup, TaskForm
+from .models import Task, TaskGroup, TaskForm, GroupForm
 
 class IndexView(generic.ListView):
     template_name = 'todolist/index.html'
@@ -92,4 +92,14 @@ def AddGroup(request):
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
 def DeleteGroup(request):
-    pass
+    if request.method == "POST":
+        form = GroupForm(request.POST)
+
+        if form.is_valid():
+            cleaned_data = form.cleaned_data
+            selected_groups = form.cleaned_data['group']
+
+            for group in selected_groups:
+                TaskGroup.objects.get(name=group.name).delete()
+
+    return redirect(request.META.get('HTTP_REFERER', '/'))

@@ -211,7 +211,7 @@ input[type=image] {
     margin-left: 20px;
 }
 
-.edit_flex_container > div {
+.edit_flex_container_items {
     display: flex;
     gap: 40px;
 
@@ -222,13 +222,17 @@ input[type=image] {
     border-bottom: 2px solid #AF5B5B;
 }
 
-.edit_flex_container > div > input {
+.edit_flex_container_items > input {
     font-size: 20px;
     border-color: #AF5B5B;
     width: 25%;
 }
 
-.task_edit_add_group_button {
+.edit_buttons {
+    margin-left: 5px;
+}
+
+.task_edit_add_group_button, .task_edit_delete_group_button {
     width: 15%;
     padding: 10px;
     border-radius: 10px;
