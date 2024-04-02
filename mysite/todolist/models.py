@@ -31,16 +31,3 @@ class Task(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class TaskForm(ModelForm):
-    deadline = CharField(widget=DateTimeInput(attrs={'type':'datetime-local'}))
-
-    class Meta:
-        model = Task
-        fields = ['name', 'description', 'priority', 'deadline', 'group']
-
-class GroupForm(ModelForm):
-    class Meta:
-        model = Task
-        fields = ['group']

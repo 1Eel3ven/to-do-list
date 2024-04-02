@@ -5,9 +5,24 @@ body {
 }
 
 .title {
+    display: grid;
+    grid-template-columns: 95% auto;
+
     background-color: #F03A47;
     padding: 30px;
     margin: -20px -7px 50px -7px;
+}
+
+.title_auth_button {
+    cursor: pointer;
+    font-size: 30px;
+    align-self: center;
+
+    transition: opacity 0.4s;
+}
+
+.title_auth_button:hover {
+    opacity: 0.8;
 }
 
 .index_checkbox {

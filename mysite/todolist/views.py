@@ -2,7 +2,8 @@ from django.shortcuts import redirect, get_object_or_404, HttpResponseRedirect, 
 from django.views import generic
 from django.urls import reverse
 
-from .models import Task, TaskGroup, TaskForm, GroupForm
+from .models import Task, TaskGroup
+from .forms import TaskForm, GroupForm
 
 class IndexView(generic.ListView):
     template_name = 'todolist/index.html'
@@ -103,3 +104,13 @@ def DeleteGroup(request):
                 TaskGroup.objects.get(name=group.name).delete()
 
     return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+def register(request):
+    pass
+
+def my_login(request):
+    pass
+
+def user_logout(request):
+    pass
