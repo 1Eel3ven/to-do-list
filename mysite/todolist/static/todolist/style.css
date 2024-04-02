@@ -273,6 +273,30 @@ input[type=image] {
     transition: background-color 0.3s;
 }
 
+
+.auth_container {
+    max-width: fit-content;
+    margin: auto;
+}
+
+.login_title, .register_title {
+    text-align: center;
+}
+
+.login_form_container, .register_form_container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.auth_alt_option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    margin-top: 30px;
+}
+
 .btns:hover {
     background-color: #AF5B5B;
 }

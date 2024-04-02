@@ -13,4 +13,6 @@ urlpatterns = [
     path('<int:task_id>/edit_task/', views.EditTask, name='edit_task'),
     path('addgroup/', views.AddGroup, name='add_group'),
     path('deletegroup/', views.DeleteGroup, name='delete_group'),
+    path('login/', views.LoginView, name='login_page'),
+    path('register/', views.RegisterView, name='register_page'),
 ]

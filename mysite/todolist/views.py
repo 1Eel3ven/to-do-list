@@ -1,9 +1,9 @@
-from django.shortcuts import redirect, get_object_or_404, HttpResponseRedirect, Http404
+from django.shortcuts import render, redirect, get_object_or_404, HttpResponseRedirect, Http404
 from django.views import generic
 from django.urls import reverse
 
 from .models import Task, TaskGroup
-from .forms import TaskForm, GroupForm
+from .forms import TaskForm, GroupForm, LoginForm, CreateUserForm
 
 class IndexView(generic.ListView):
     template_name = 'todolist/index.html'
@@ -106,11 +106,15 @@ def DeleteGroup(request):
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
-def register(request):
-    pass
+def LoginView(request):
+    context = {'login_form': LoginForm}
 
-def my_login(request):
-    pass
+    return render(request, 'todolist/login.html', context=context)
+
+def RegisterView(request):
+    context = {'register_form': CreateUserForm}
+
+    return render(request, 'todolist/register.html', context=context)
 
 def user_logout(request):
     pass

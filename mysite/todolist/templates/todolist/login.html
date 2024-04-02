@@ -1,0 +1,22 @@
+{% extends 'todolist/base2.html' %}
+
+{% block content %}
+    <div class='auth_container'>
+        <h1 class='login_title'>Log in</h1>
+
+        <form class='login_form_container' method="POST" autocomplete="off">
+            {% csrf_token %}
+
+            {{ login_form.as_p }}
+
+            <input type="submit" value="Login" class='login_form_button btns'>
+        </form>
+
+        <div class='auth_alt_option'>
+            Dont have an account?
+            <a href='{% url 'todolist:register_page' %}'>
+                <button class='login_register_button btns'>Register</button>
+            </a>
+        </div>
+    </div>
+{% endblock %}
