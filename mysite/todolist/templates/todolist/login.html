@@ -4,7 +4,7 @@
     <div class='auth_container'>
         <h1 class='login_title'>Log in</h1>
 
-        <form class='login_form_container' method="POST" autocomplete="off">
+        <form class='login_form_container' method="POST" action='{% url 'todolist:login' %}' autocomplete="off">
             {% csrf_token %}
 
             {{ login_form.as_p }}
@@ -14,7 +14,7 @@
 
         <div class='auth_alt_option'>
             Dont have an account?
-            <a href='{% url 'todolist:register_page' %}'>
+            <a href='{% url 'todolist:register' %}'>
                 <button class='login_register_button btns'>Register</button>
             </a>
         </div>

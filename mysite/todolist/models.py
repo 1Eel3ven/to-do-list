@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils import timezone
-from django.forms import ModelForm, CharField, DateTimeInput
 
 PRIORITYCHOICES = [
        ('Low', 'Low'),

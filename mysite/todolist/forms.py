@@ -23,4 +23,4 @@ class CreateUserForm(UserCreationForm):
 
 class LoginForm(AuthenticationForm):
     username = CharField(widget=TextInput())
-    password = CharField(widget=PasswordInput)
+    password = CharField(widget=PasswordInput())

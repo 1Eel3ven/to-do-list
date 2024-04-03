@@ -93,7 +93,8 @@ input[type=image] {
     user-select: none;
 
     padding: 10px;
-    margin: auto auto auto -30px;
+    margin: auto;
+    max-width: 95%;
     border: 1px solid #AF5B5B;
     border-radius: 15px;
 

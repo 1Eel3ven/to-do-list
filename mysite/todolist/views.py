@@ -2,6 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404, HttpResponseRe
 from django.views import generic
 from django.urls import reverse
 
+from django.contrib.auth.models import auth
+from django.contrib.auth import authenticate, login, logout
+
 from .models import Task, TaskGroup
 from .forms import TaskForm, GroupForm, LoginForm, CreateUserForm
 
@@ -106,15 +109,38 @@ def DeleteGroup(request):
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
-def LoginView(request):
-    context = {'login_form': LoginForm}
-
-    return render(request, 'todolist/login.html', context=context)
-
 def RegisterView(request):
+    if request.method == 'POST':
+        form = CreateUserForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('todolist:login'))
+
     context = {'register_form': CreateUserForm}
 
     return render(request, 'todolist/register.html', context=context)
 
-def user_logout(request):
-    pass
+def LoginView(request):
+    if request.method == 'POST':
+        form = LoginForm(data=request.POST)
+
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+
+            user = authenticate(request, username=username, password=password)
+
+            if user is not None:
+                auth.login(request, user)
+
+                return redirect(reverse('todolist:index'))
+
+    context = {'login_form': LoginForm}
+
+    return render(request, 'todolist/login.html', context=context)
+
+def LogOutView(request):
+    auth.logout(request)
+
+    return redirect(reverse('todolist:index'))
