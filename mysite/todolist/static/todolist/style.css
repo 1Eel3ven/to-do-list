@@ -6,7 +6,7 @@ body {
 
 .title {
     display: grid;
-    grid-template-columns: 95% auto;
+    grid-template-columns: 93% auto;
 
     background-color: #F03A47;
     padding: 30px;

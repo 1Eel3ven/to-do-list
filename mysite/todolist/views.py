@@ -1,4 +1,5 @@
-from django.shortcuts import render, redirect, get_object_or_404, HttpResponseRedirect, Http404
+from django.shortcuts import render, redirect, get_object_or_404, HttpResponseRedirect
+from django.http import Http404
 from django.views import generic
 from django.urls import reverse
 
@@ -12,7 +13,8 @@ class IndexView(generic.ListView):
     template_name = 'todolist/index.html'
 
     def get_queryset(self):
-        task_list = Task.objects.prefetch_related('group').all()
+        owner_id = self.request.user.id
+        task_list = Task.objects.prefetch_related('group').filter(owner_id=owner_id)
 
         for task in task_list:
             group_names = [group.name for group in task.group.all()[:3]]
@@ -56,7 +58,7 @@ def EditTask(request, task_id):
     try:
         task = Task.objects.get(pk=task_id)
     except Task.DoesNotExist:
-        raise Http404("Task does not exist")
+        return Http404('Task doesnt exist')
 
     if request.method == "POST":
         form = TaskForm(request.POST)
@@ -75,6 +77,9 @@ def EditTask(request, task_id):
 
 def CreateTask(request):
     if request.method == "POST":
+        if request.user.id is None:
+            return HttpResponseRedirect(reverse('todolist:login'))
+
         form = TaskForm(request.POST)
 
         if form.is_valid():
@@ -83,6 +88,7 @@ def CreateTask(request):
 
             new_task = Task.objects.create(**cleaned_data)
             new_task.group.set(groups)
+            new_task.owner_id = request.user.id
             new_task.save()
 
     return HttpResponseRedirect(reverse('todolist:index'))
@@ -100,7 +106,6 @@ def DeleteGroup(request):
         form = GroupForm(request.POST)
 
         if form.is_valid():
-            cleaned_data = form.cleaned_data
             selected_groups = form.cleaned_data['group']
 
             for group in selected_groups:
