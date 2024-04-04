@@ -4,7 +4,8 @@ from django.views import generic
 from django.urls import reverse
 
 from django.contrib.auth.models import auth
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate
 
 from .models import Task, TaskGroup
 from .forms import TaskForm, GroupForm, LoginForm, CreateUserForm
@@ -13,8 +14,7 @@ class IndexView(generic.ListView):
     template_name = 'todolist/index.html'
 
     def get_queryset(self):
-        owner_id = self.request.user.id
-        task_list = Task.objects.prefetch_related('group').filter(owner_id=owner_id)
+        task_list = Task.objects.prefetch_related('group').filter(owner_id=self.request.user.id)
 
         for task in task_list:
             group_names = [group.name for group in task.group.all()[:3]]
@@ -33,13 +33,17 @@ class DetailView(generic.DetailView):
 
     def get_object(self, queryset=None):
         task = super(DetailView, self).get_object(queryset=queryset)
+
+        if task.owner_id != self.request.user.id:
+            raise Http404('Task doesnt exist')
+
         group_names = [group.name for group in task.group.all()[:3]]
         task.group_names = " - ".join(group_names)
 
         return task
     
 def CompleteTask(request, task_id):
-    task = get_object_or_404(Task, pk=task_id)
+    task = get_object_or_404(Task, pk=task_id, owner_id=request.user.id)
     task.delete()
     return redirect('todolist:index')
 
@@ -50,15 +54,13 @@ class EditView(generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        task = get_object_or_404(Task, pk=self.kwargs['pk'])
+        task = get_object_or_404(Task, pk=self.kwargs['pk'], owner_id=self.request.user.id)
         context['task_form'] = TaskForm(instance=task)
         return context
-    
+
+@login_required    
 def EditTask(request, task_id):
-    try:
-        task = Task.objects.get(pk=task_id)
-    except Task.DoesNotExist:
-        return Http404('Task doesnt exist')
+    task = get_object_or_404(Task, pk=task_id, owner_id=request.user.id)
 
     if request.method == "POST":
         form = TaskForm(request.POST)
@@ -73,13 +75,11 @@ def EditTask(request, task_id):
             task.group.set(groups)
             task.save()
 
-    return HttpResponseRedirect(reverse('todolist:index'))
+        return HttpResponseRedirect(reverse('todolist:index'))
 
+@login_required
 def CreateTask(request):
     if request.method == "POST":
-        if request.user.id is None:
-            return HttpResponseRedirect(reverse('todolist:login'))
-
         form = TaskForm(request.POST)
 
         if form.is_valid():
@@ -93,16 +93,20 @@ def CreateTask(request):
 
     return HttpResponseRedirect(reverse('todolist:index'))
 
+@login_required
 def AddGroup(request):
     if request.method == "POST":
+
         group_name = request.POST.get('group_name')
         new_group = TaskGroup.objects.create(name=group_name)
         new_group.save()
 
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
+@login_required
 def DeleteGroup(request):
     if request.method == "POST":
+
         form = GroupForm(request.POST)
 
         if form.is_valid():
