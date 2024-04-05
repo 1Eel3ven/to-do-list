@@ -2,10 +2,15 @@ from django.forms import ModelForm, CharField, DateTimeInput, PasswordInput, Tex
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 
-from .models import Task
+from .models import Task, TaskGroup
 
 class TaskForm(ModelForm):
     deadline = CharField(widget=DateTimeInput(attrs={'type':'datetime-local'}))
+
+    def __init__(self, *args, user=None, **kwargs):
+        super(TaskForm, self).__init__(*args, **kwargs)
+        if user:
+            self.fields['group'].queryset = TaskGroup.objects.filter(owner_id=user.id).distinct()
 
     class Meta:
         model = Task

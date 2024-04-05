@@ -14,17 +14,18 @@ class IndexView(generic.ListView):
     template_name = 'todolist/index.html'
 
     def get_queryset(self):
-        task_list = Task.objects.prefetch_related('group').filter(owner_id=self.request.user.id)
+        user_id = self.request.user.id
+        task_list = Task.objects.prefetch_related('group').filter(owner_id=user_id)
 
         for task in task_list:
-            group_names = [group.name for group in task.group.all()[:3]]
+            group_names = [group.name for group in task.group.filter(owner_id=user_id)[:3]]
             task.group_names = " - ".join(group_names)
 
         return task_list
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['task_form'] = TaskForm()
+        context['task_form'] = TaskForm(user=self.request.user)
         return context
 
 class DetailView(generic.DetailView):
@@ -99,6 +100,7 @@ def AddGroup(request):
 
         group_name = request.POST.get('group_name')
         new_group = TaskGroup.objects.create(name=group_name)
+        new_group.owner_id = request.user.id
         new_group.save()
 
     return redirect(request.META.get('HTTP_REFERER', '/'))
@@ -113,7 +115,7 @@ def DeleteGroup(request):
             selected_groups = form.cleaned_data['group']
 
             for group in selected_groups:
-                TaskGroup.objects.get(name=group.name).delete()
+                TaskGroup.objects.get(name=group.name, owner_id = request.user.id).delete()
 
     return redirect(request.META.get('HTTP_REFERER', '/'))
 

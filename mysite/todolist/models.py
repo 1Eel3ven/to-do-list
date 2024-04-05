@@ -9,8 +9,18 @@ PRIORITYCHOICES = [
        ('Critical', 'Critical'),
    ]
 
+def get_default_user_id():
+    return get_user_model().objects.first().pk
+
 class TaskGroup(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50) 
+
+    owner = models.ForeignKey(
+        get_user_model(),
+        on_delete=models.CASCADE,
+        related_name='taskgroups',
+        default=get_default_user_id,
+    )
 
     def __str__(self):
         return self.name
