@@ -54,9 +54,11 @@ class EditView(generic.DetailView):
     template_name = 'todolist/edit.html'
 
     def get_context_data(self, **kwargs):
+        user = self.request.user
+
         context = super().get_context_data(**kwargs)
-        task = get_object_or_404(Task, pk=self.kwargs['pk'], owner_id=self.request.user.id)
-        context['task_form'] = TaskForm(instance=task)
+        task = get_object_or_404(Task, pk=self.kwargs['pk'], owner_id=user.id)
+        context['task_form'] = TaskForm(instance=task, user=user)
         return context
 
 @login_required    
