@@ -2,32 +2,39 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 
-PRIORITYCHOICES = [
-       ('Low', 'Low'),
-       ('Medium', 'Medium'),
-       ('High', 'High'),
-       ('Critical', 'Critical'),
-   ]
+class BaseModel(models.Model):
+    def save(self, *args, **kwargs):
+        if self.pk is None and self.owner_id is None:
+            self.owner = get_user_model().objects.first()
+        super().save(*args, **kwargs)
 
-def get_default_user_id():
-    return get_user_model().objects.first().pk
+    class Meta:
+        abstract = True
 
-class TaskGroup(models.Model):
+class TaskGroup(BaseModel):
     name = models.CharField(max_length=50) 
 
     owner = models.ForeignKey(
         get_user_model(),
         on_delete=models.CASCADE,
         related_name='taskgroups',
-        default=get_default_user_id,
+        default=None,
+        null=True,
     )
 
     def __str__(self):
         return self.name
 
-class Task(models.Model):
+class Task(BaseModel):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=255, blank=True)
+
+    PRIORITYCHOICES = [
+       ('Low', 'Low'),
+       ('Medium', 'Medium'),
+       ('High', 'High'),
+       ('Critical', 'Critical'),
+   ]
     
     priority = models.CharField(max_length=10, choices=PRIORITYCHOICES)
 
@@ -36,14 +43,12 @@ class Task(models.Model):
 
     group = models.ManyToManyField(TaskGroup)
 
-    def get_default_user_id():
-        return get_user_model().objects.first().pk
-
     owner = models.ForeignKey(
         get_user_model(),
         on_delete=models.CASCADE,
         related_name='tasks',
-        default=get_default_user_id,
+        default=None,
+        null=True,
     )
 
     def is_outdated(self):

@@ -1,13 +1,14 @@
 from datetime import timedelta
 
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.urls import reverse
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 from .models import Task, TaskGroup
 
-def create_task(task_name, days=5, groups=None):
-    '''Creates a task that with deadline offset to now;
+def create_task(task_name, days=5, groups=None, user=None):
+    '''Creates a task with deadline offset to now;
     Negative for task with deadline in the past; Positive for task with deadline in the future.'''
     time = timezone.now() + timedelta(days=days)
     task = Task.objects.create(name=task_name, deadline=time)
@@ -16,14 +17,21 @@ def create_task(task_name, days=5, groups=None):
         for g in groups:
             task.group.add(g)
 
+    if user:
+        task.owner_id = user.id
+
     return task
 
-def create_group(group_name):
+def create_group(group_name, user=None):
     group = TaskGroup.objects.create(name=group_name)
+
+    if user:
+        group.owner_id = user.id
 
     return group
 
-class QuestionTaskViewTests(TestCase):
+
+class TaskViewTests(TestCase):
     def test_no_tasks(self):
         '''Testing if an appropriate message displayed when no tasks exist'''
         response = self.client.get(reverse('todolist:index'))

@@ -52,7 +52,7 @@
         <p style='text-align: center'>You dont have tasks for now.</p>
     {% endif %}
     
-    <!-- Create task button, pop-up for create interface after it -->
+    <!-- Create task button -->
     <div class='task_create_open' onclick="openForm('task_create_form')">Create task</div>
 
     <!-- Pop-up windows -->
@@ -70,33 +70,6 @@
         </form>
     </div>
 
-    <div class='task_add_group_form' id='task_add_group'>
-        <form method='POST' class='task_add_group_form_container' action='{% url 'todolist:add_group' %}'>
-            {% csrf_token %}
-            <legend class='task_add_group_form_legend'>Add new group</legend>
-
-            <input type='text' class='add_group_name_input' name='group_name' maxlength='50' placeholder='Group name' required>
-            
-            <button type='submit' class='task_add_group_form_save btns'>Save</button>
-        </form>
-    </div>
-
-    <div class='task_delete_group_form' id='task_delete_group'>
-        <form method='POST' class='task_delete_group_form_container' action='{% url 'todolist:delete_group' %}'>
-            {% csrf_token %}
-            <legend class='task_delete_group_form_legend'>Delete group</legend>
-
-            <div class='task_delete_group_form_content'>
-                <label>Select group</label>
-                {{ task_form.group }}
-                
-                <button type='submit' class='task_delete_group_form_save btns'>Delete</button>
-            </div>
-        </form>
-    </div>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <script>
         function hover(element) {
             element.setAttribute('src', '{% static 'todolist/images/checkbox2.png' %}');
@@ -106,27 +79,9 @@
             element.setAttribute('src', '{% static 'todolist/images/checkbox1.png' %}');
         }
 
-        function openForm(element) {           
-            var form = document.getElementById(element);
-            
-            if (form.style.display === "block") {
-                form.style.display = "none";
-            }
-            else {
-                form.style.display = "block";
-            }
-        }
-
+        
         $(function() {
             $('#task_create_form').draggable();
-        });
-
-        $(function() {
-            $('#task_add_group').draggable();
-        });
-
-        $(function() {
-            $('#task_delete_group').draggable();
         });
     </script>
 {% endblock %}
