@@ -7,20 +7,21 @@ class BaseModel(models.Model):
         if self.pk is None and self.owner_id is None:
             self.owner = get_user_model().objects.first()
         super().save(*args, **kwargs)
+    
+    owner = models.ForeignKey(
+        get_user_model(),
+        on_delete=models.CASCADE,
+        related_name="%(app_label)s_%(class)ss",
+        related_query_name="%(app_label)s_%(class)s",
+        default=None,
+        null=True,
+    )
 
     class Meta:
         abstract = True
 
 class TaskGroup(BaseModel):
     name = models.CharField(max_length=50) 
-
-    owner = models.ForeignKey(
-        get_user_model(),
-        on_delete=models.CASCADE,
-        related_name='taskgroups',
-        default=None,
-        null=True,
-    )
 
     def __str__(self):
         return self.name
@@ -42,14 +43,6 @@ class Task(BaseModel):
     deadline = models.DateTimeField()
 
     group = models.ManyToManyField(TaskGroup)
-
-    owner = models.ForeignKey(
-        get_user_model(),
-        on_delete=models.CASCADE,
-        related_name='tasks',
-        default=None,
-        null=True,
-    )
 
     def is_outdated(self):
         return self.deadline <= timezone.now()
