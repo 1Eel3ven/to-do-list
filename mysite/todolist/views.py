@@ -33,10 +33,13 @@ class DetailView(generic.DetailView):
     template_name = 'todolist/detail.html'
 
     def get_object(self, queryset=None):
-        task = super(DetailView, self).get_object(queryset=queryset)
-
-        if task.owner_id != self.request.user.id:
+        try:
+            task = super(DetailView, self).get_object(queryset=queryset)
+        except:
             raise Http404('Task doesnt exist')
+        else:
+            if task.owner_id != self.request.user.id:
+                raise Http404('Task doesnt exist')
 
         group_names = [group.name for group in task.group.all()[:3]]
         task.group_names = " - ".join(group_names)
