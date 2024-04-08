@@ -47,7 +47,11 @@ class DetailView(generic.DetailView):
         return task
     
 def CompleteTask(request, task_id):
-    task = get_object_or_404(Task, pk=task_id, owner_id=request.user.id)
+    try:
+        task = Task.objects.get(pk=task_id, owner_id=request.user.id)
+    except:
+        raise Http404('Task doesnt exist')
+    
     task.delete()
     return redirect('todolist:index')
 

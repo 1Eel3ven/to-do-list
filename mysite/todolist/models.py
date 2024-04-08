@@ -2,7 +2,8 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 
-class BaseModel(models.Model):
+class OwnerMixin(models.Model):
+    # used in tests that doesnt need working with a user
     def save(self, *args, **kwargs):
         if self.pk is None and self.owner_id is None:
             self.owner = get_user_model().objects.first()
@@ -20,13 +21,13 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
-class TaskGroup(BaseModel):
+class TaskGroup(OwnerMixin):
     name = models.CharField(max_length=50) 
 
     def __str__(self):
         return self.name
 
-class Task(BaseModel):
+class Task(OwnerMixin):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=255, blank=True)
 

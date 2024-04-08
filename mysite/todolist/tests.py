@@ -13,26 +13,25 @@ def create_task(task_name, days=5, groups=None, user=None):
     '''Creates a task with deadline offset to now;
     Negative for task with deadline in the past; Positive for task with deadline in the future.'''
     time = timezone.now() + timedelta(days=days)
-    task = Task.objects.create(name=task_name, deadline=time)
+    user_id = user.id if user else None
+
+    task = Task.objects.create(name=task_name, deadline=time, owner_id=user_id)
 
     if groups:
         for g in groups:
             task.group.add(g)
 
-    if user:
-        task.owner_id = user.id
-
     return task
 
 def create_group(group_name, user=None):
-    group = TaskGroup.objects.create(name=group_name)
+    user_id = user.id if user else None
 
-    if user:
-        group.owner_id = user.id
+    group = TaskGroup.objects.create(name=group_name, owner_id=user_id)
 
     return group
 
 
+# index page tests where user isnt required
 class IndexTaskViewTests(TestCase):
     def setUp(self):
         self.c = Client()
@@ -71,6 +70,7 @@ class IndexTaskViewTests(TestCase):
     def test_task_with_group(self):
         '''Testing if group name of the task is displayed'''
         group = create_group('TestGroup')
+
         task = create_task(task_name='Task', groups=[group])
         response = self.c.get(reverse('todolist:index'))
 
@@ -81,16 +81,22 @@ class IndexTaskViewTests(TestCase):
         '''Testing if names of groups of the task are displayed'''
         group1 = create_group('TestGroup 1')
         group2 = create_group('TestGroup 2')
+
         task = create_task(task_name='Task', groups=[group1, group2])
         response = self.c.get(reverse('todolist:index'))
 
         self.assertContains(response, f'{group1.name} - {group2.name}')
         self.assertQuerySetEqual(response.context['task_list'], [task])
 
+
+# index page tests with user
 class IndexTaskViewUserTests(TestCase):
     def setUp(self):
         self.c = Client()
-        self.user = User.objects.create_user(username='testuser', password='12345')
+        
+        self.username = 'test_user'
+        self.password = '12345'
+        self.user = User.objects.create_user(username=self.username, password=self.password)
 
     def test_task_visibility_to_unauthorized_user(self):
         '''Testing if task isnt displayed to unathorized user'''
@@ -101,7 +107,7 @@ class IndexTaskViewUserTests(TestCase):
 
     def test_task_visibility_to_logged_in_user(self):
         '''Testing if task is displayed to its owner'''
-        self.c.login(username='testuser', password='12345')
+        self.c.login(username=self.username, password=self.password)
 
         task = create_task(task_name='Task', user=self.user)
         response = self.c.get(reverse('todolist:index'))
@@ -112,10 +118,77 @@ class IndexTaskViewUserTests(TestCase):
         '''Testing if task isnt displayed to non-owners'''
         self.owner = User.objects.create_user(username='owner_user', password='abcdeg')
 
-        user = authenticate(username='testuser1', password='12345')
-        self.c.login(user=user)
+        self.c.login(username=self.username, password=self.password)
 
         create_task(task_name='Task', user=self.owner)
         response = self.c.get(reverse('todolist:index'))
 
         self.assertQuerySetEqual(response.context['task_list'], [])
+
+
+class DetailViewTests(TestCase):
+    def setUp(self):
+        self.c = Client()
+
+        self.username = 'test_user'
+        self.password = '12345'
+        self.user = User.objects.create_user(username='test_user', password='12345')
+
+    def login_test_user(self):
+        self.c.login(username=self.username, password=self.password)
+
+    def test_group_display(self):
+        '''Testing if group of the task is displayed'''
+        self.login_test_user()
+
+        group = create_group('TestGroup', user=self.user)
+        task = create_task(task_name='Task', groups=[group], user=self.user)
+
+        response = self.c.get(reverse('todolist:detail', args=[task.pk]))
+
+        self.assertContains(response, group.name)
+
+    def test_groups_display(self):
+        '''Testing if groups of the task are displayed'''
+        self.login_test_user()
+
+        group1 = create_group('TestGroup 1', user=self.user)
+        group2 = create_group('TestGroup 2', user=self.user)
+        task = create_task(task_name='Task', groups=[group1, group2], user=self.user)
+
+        response = self.c.get(reverse('todolist:detail', args=[task.pk]))
+
+        self.assertContains(response, f'{group1.name} - {group2.name}')
+
+    def test_404_for_nonexistent_task(self):
+        '''Testing if trying to access nonexistent task gives 404'''
+        response = self.c.get(reverse('todolist:detail', args=[1]))
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_404_for_unauthorized_user(self):
+        '''Testing if 404 is given when unauthorized user tries to access some task`s detail page'''
+        task = create_task(task_name='Task', user=self.user)
+        response = self.c.get(reverse('todolist:detail', args=[task.pk]))
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_page_for_task_owner(self):
+        '''Testing if task owner can successfully access the detail page of his task'''
+        self.login_test_user()
+
+        task = create_task(task_name='Task', user=self.user)
+        response = self.c.get(reverse('todolist:detail', args=[task.pk]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, task.name)
+
+    def test_404_for_non_task_owner(self):
+        '''Testing if 404 is given when user tries to access some task`s detail page of other user'''
+        self.owner = User.objects.create_user(username='owner_user', password='abcdeg')
+        self.login_test_user()
+
+        task = create_task(task_name='Task', user=self.owner)
+        response = self.c.get(reverse('todolist:detail', args=[task.pk]))
+
+        self.assertEqual(response.status_code, 404)
