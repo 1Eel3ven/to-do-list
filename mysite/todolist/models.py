@@ -3,8 +3,8 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 
 class OwnerMixin(models.Model):
-    # used in tests that doesnt need working with a user
     def save(self, *args, **kwargs):
+        # for running tests without specifying user when its not needed
         if self.pk is None and self.owner_id is None:
             self.owner = get_user_model().objects.first()
         super().save(*args, **kwargs)

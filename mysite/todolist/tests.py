@@ -3,19 +3,26 @@ from datetime import timedelta
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.utils import timezone
+from django.forms.models import model_to_dict
 
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
 
 from .models import Task, TaskGroup
+from .forms import TaskForm
 
-def create_task(task_name, days=5, groups=None, user=None):
+def create_task(task_name, desc='desc', pr='Medium', days=5, groups=None, user=None):
     '''Creates a task with deadline offset to now;
     Negative for task with deadline in the past; Positive for task with deadline in the future.'''
     time = timezone.now() + timedelta(days=days)
     user_id = user.id if user else None
 
-    task = Task.objects.create(name=task_name, deadline=time, owner_id=user_id)
+    task = Task.objects.create(
+        name=task_name, 
+        description=desc, 
+        priority=pr, 
+        deadline=time, 
+        owner_id=user_id
+        )
 
     if groups:
         for g in groups:
@@ -129,10 +136,10 @@ class IndexTaskViewUserTests(TestCase):
 class DetailViewTests(TestCase):
     def setUp(self):
         self.c = Client()
-
+        
         self.username = 'test_user'
         self.password = '12345'
-        self.user = User.objects.create_user(username='test_user', password='12345')
+        self.user = User.objects.create_user(username=self.username, password=self.password)
 
     def login_test_user(self):
         self.c.login(username=self.username, password=self.password)
@@ -192,3 +199,96 @@ class DetailViewTests(TestCase):
         response = self.c.get(reverse('todolist:detail', args=[task.pk]))
 
         self.assertEqual(response.status_code, 404)
+
+
+class CompleteTaskViewTests(TestCase):
+    def setUp(self):
+        self.c = Client()
+        
+        self.username = 'test_user'
+        self.password = '12345'
+        self.user = User.objects.create_user(username=self.username, password=self.password)
+
+    def test_task_complete_on_index(self):
+        '''Testing if task dissapears from the index page when user clicks on complete checkbox'''
+        self.c.login(username=self.username, password=self.password)
+        task = create_task(task_name='Task', user=self.user)
+
+        response = self.c.get(reverse('todolist:index'))
+        self.assertQuerySetEqual(response.context['task_list'], [task])
+
+        self.c.post(reverse('todolist:complete_task', args=[task.pk]))
+
+        response = self.c.get(reverse('todolist:index'))
+        self.assertQuerySetEqual(response.context['task_list'], [])
+
+    def test_404_for_trying_to_complete_nonexistent_task(self):
+        '''Testing if 404 is given when completing of the nonexistent task is attempted'''
+        response = self.c.post(reverse('todolist:complete_task', args=[1]))
+        self.assertEqual(response.status_code, 404)
+
+    def test_404_for_trying_to_complete_other_user_task(self):
+        '''Testing if 404 is given if user uses tries to access CompleteTask view to complete other user`s task'''
+        self.owner = User.objects.create_user(username='owner_user', password='abcdeg')
+        self.c.login(username=self.username, password=self.password)
+
+        task = create_task(task_name='Task', user=self.owner)
+
+        response = self.c.post(reverse('todolist:complete_task', args=[task.pk]))
+        self.assertEqual(response.status_code, 404)
+
+
+class EditPageTests(TestCase):
+    def setUp(self):
+        self.c = Client()
+        
+        self.username = 'test_user'
+        self.password = '12345'
+        self.user = User.objects.create_user(username=self.username, password=self.password)
+
+    def login_test_user(self):
+        self.c.login(username=self.username, password=self.password)
+
+    def test_404_for_accessing_edit_page_of_nonexistent_task(self):
+        '''Testing if 404 is given when user tries to access edit page of nonexistent task'''
+        self.login_test_user()
+
+        task = create_task(task_name='Task', user=self.user)
+
+        response = self.c.get(reverse('todolist:edit', args=[task.pk]))
+        self.assertEqual(response.status_code, 404)
+
+    def test_404_for_accessing_edit_page_of_nonexistent_task(self):
+        '''Testing if 404 is given when non-owner of task tries to access edit page of the task'''
+        self.owner = User.objects.create_user(username='owner_user', password='abcdeg')
+        self.login_test_user()
+
+        task = create_task(task_name='Task', user=self.owner)
+
+        response = self.c.get(reverse('todolist:edit', args=[task.pk]))
+        self.assertEqual(response.status_code, 404)
+
+    def test_task_form_data_equals_to_task_data(self):
+        '''Testing if task form data is simillar to the task user is going to edit'''
+        self.login_test_user()
+        
+        group1 = create_group('TestGroup 1', user=self.user)
+        group2 = create_group('TestGroup 2', user=self.user)
+
+        task = create_task(
+            task_name='Task', 
+            desc='Test task description', 
+            days=5, 
+            groups=[group1, group2], 
+            user=self.user
+            )
+
+        response = self.c.get(reverse('todolist:edit', args=[task.pk]))
+
+        task_form = response.context['task_form'].initial
+        task_dict = model_to_dict(task)
+
+        for field in ['name', 'description', 'priority', 'deadline', 'group']:
+            self.assertEqual(task_form[field], task_dict[field])
+
+

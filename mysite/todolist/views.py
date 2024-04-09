@@ -18,6 +18,7 @@ class IndexView(generic.ListView):
         task_list = Task.objects.prefetch_related('group').filter(owner_id=user_id)
 
         for task in task_list:
+            # check if all groups of the task belong to user and format the first 3 of them
             group_names = [group.name for group in task.group.filter(owner_id=user_id)[:3]]
             task.group_names = " - ".join(group_names)
 
@@ -25,6 +26,7 @@ class IndexView(generic.ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # groups in the form will be rendered to contain only those that belong to user
         context['task_form'] = TaskForm(user=self.request.user)
         return context
 
@@ -56,6 +58,7 @@ def CompleteTask(request, task_id):
     return redirect('todolist:index')
 
 class EditView(generic.DetailView):
+    # Loads a page with form for editing task instance
     model = Task
     queryset = Task.objects.all()
     template_name = 'todolist/edit.html'
@@ -64,8 +67,12 @@ class EditView(generic.DetailView):
         user = self.request.user
 
         context = super().get_context_data(**kwargs)
-        task = get_object_or_404(Task, pk=self.kwargs['pk'], owner_id=user.id)
-        context['task_form'] = TaskForm(instance=task, user=user)
+
+        try:
+            task = get_object_or_404(Task, pk=self.kwargs['pk'], owner_id=user.id)
+            context['task_form'] = TaskForm(instance=task, user=user)
+        except:
+            raise Http404('Task doesnt exist')
         return context
 
 @login_required    
@@ -112,6 +119,7 @@ def AddGroup(request):
         new_group.owner_id = request.user.id
         new_group.save()
 
+    # redirect to the page where user`ve been
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
 @login_required
