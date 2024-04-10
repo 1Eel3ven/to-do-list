@@ -8,7 +8,6 @@ from django.forms.models import model_to_dict
 from django.contrib.auth.models import User
 
 from .models import Task, TaskGroup
-from .forms import TaskForm
 
 def create_task(task_name, desc='desc', pr='Medium', days=5, groups=None, user=None):
     '''Creates a task with deadline offset to now;
@@ -290,5 +289,85 @@ class EditPageTests(TestCase):
 
         for field in ['name', 'description', 'priority', 'deadline', 'group']:
             self.assertEqual(task_form[field], task_dict[field])
+
+
+class EditTaskViewTests(TestCase):
+    def setUp(self):
+        self.c = Client()
+        
+        self.username = 'test_user'
+        self.password = '12345'
+        self.user = User.objects.create_user(username=self.username, password=self.password)
+
+    def login_test_user(self):
+        self.c.login(username=self.username, password=self.password)
+
+    def test_login_required_for_unauthorized_user(self):
+        '''Testing if unauthorized user is redirected to login page when trying to access edit view'''
+        task = create_task(task_name='Task', user=self.user)
+
+        response = self.c.post(reverse('todolist:edit_task', args=[task.pk]))
+        self.assertEqual(response.status_code, 302)
+
+        # since redirect url contains next?=, startswith is used
+        self.assertTrue(response.url.startswith(reverse('todolist:login')))
+
+    def test_404_for_editing_nonexistent_task(self):
+        '''Testing if 404 is given when user tries to access edit view for nonexistent task'''
+        self.login_test_user()
+
+        response = self.c.post(reverse('todolist:edit_task', args=[1]))
+        self.assertEqual(response.status_code, 404)
+
+    def test_404_for_editing_other_user_task(self):
+        '''Testing if 404 is given when non-owner of the task tries to access edit view for the task'''
+        self.login_test_user()
+        self.owner = User.objects.create_user(username='owner_user', password='abcdeg')
+
+        task = create_task(task_name='Task', user=self.owner)
+
+        response = self.c.post(reverse('todolist:edit_task', args=[task.pk]))
+        self.assertEqual(response.status_code, 404)
+
+    def test_task_edit(self):
+        '''Testing if editing of the task updates it successfully'''
+        self.login_test_user()
+
+        group1 = create_group('TestGroup 1', user=self.user)
+        group2 = create_group('TestGroup 2', user=self.user)
+        group3 = create_group('TestGroup 3', user=self.user)
+
+        task = create_task(
+            task_name='Task', 
+            desc='Test task description', 
+            days=5, 
+            groups=[group1, group2], 
+            user=self.user
+            )
+
+        updated_task_context = {
+            'name': 'Updated task', 
+            'description': 'Updated desc', 
+            'priority': 'Critical', 
+            'deadline': timezone.now(),
+            'group': [group2.pk, group3.pk],
+            # pk is for validation in the view
+        }
+        
+        response = self.c.post(reverse('todolist:edit_task', args=[task.pk]), updated_task_context)
+        self.assertNotEqual(response.status_code, 404)
+        self.assertEqual(response.url, reverse('todolist:index'))
+
+        updated_task = Task.objects.get(pk=task.pk)
+        updated_task_dict = model_to_dict(updated_task)
+        updated_task_context['group'] = [group2, group3]
+
+        # test if all fields are updated
+        for field in updated_task_context.keys():
+            self.assertEqual(updated_task_dict[field], updated_task_context[field])
+
+        # test if updated task is on the index
+        response = self.c.get(reverse('todolist:index'))
+        self.assertQuerySetEqual(response.context['task_list'], [updated_task])
 
 

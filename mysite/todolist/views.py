@@ -91,6 +91,8 @@ def EditTask(request, task_id):
             task = Task.objects.get(pk=task_id)
             task.group.set(groups)
             task.save()
+        else:
+            raise Http404('The changes you made arent valid.')
 
         return HttpResponseRedirect(reverse('todolist:index'))
 
