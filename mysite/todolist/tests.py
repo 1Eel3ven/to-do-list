@@ -355,14 +355,17 @@ class EditTaskViewTests(TestCase):
         }
         
         response = self.c.post(reverse('todolist:edit_task', args=[task.pk]), updated_task_context)
+
+        # test if validation and redirect happened
         self.assertNotEqual(response.status_code, 404)
         self.assertEqual(response.url, reverse('todolist:index'))
 
+        
         updated_task = Task.objects.get(pk=task.pk)
         updated_task_dict = model_to_dict(updated_task)
         updated_task_context['group'] = [group2, group3]
 
-        # test if all fields are updated
+        # test if all fields were updated
         for field in updated_task_context.keys():
             self.assertEqual(updated_task_dict[field], updated_task_context[field])
 
@@ -371,3 +374,176 @@ class EditTaskViewTests(TestCase):
         self.assertQuerySetEqual(response.context['task_list'], [updated_task])
 
 
+class CreateTaskViewTests(TestCase):
+    def setUp(self):
+        self.c = Client()
+        
+        self.username = 'test_user'
+        self.password = '12345'
+        self.user = User.objects.create_user(username=self.username, password=self.password)
+
+    def login_test_user(self):
+        self.c.login(username=self.username, password=self.password)
+
+    def test_login_required_for_unauthorized_user(self):
+        '''Testing if unauthorized user is redirected to login page when trying to create a task'''
+
+        response = self.c.post(reverse('todolist:add_group'), {})
+        self.assertEqual(response.status_code, 302)
+
+        self.assertTrue(response.url.startswith(reverse('todolist:login')))
+
+    def test_task_create(self):
+        '''Testing if task create works properly'''
+        self.login_test_user()
+
+        group1 = create_group('TestGroup 1', user=self.user)
+        group2 = create_group('TestGroup 2', user=self.user)
+
+        task_context = {
+            'name': 'Test Task', 
+            'description': 'Desc', 
+            'priority': 'Medium', 
+            'deadline': timezone.now(),
+            'group': [group1.pk, group2.pk],
+            # pk is for validation in the view
+        }
+
+        response = self.c.post(reverse('todolist:create_task'), task_context)
+
+        # test if redirect happened
+        self.assertEqual(response.url, reverse('todolist:index'))
+
+        # since we dont know pk, get task by the deadline
+        task = Task.objects.get(deadline=task_context['deadline'])
+        task_dict = model_to_dict(task)
+        task_context['group'] = [group1, group2]
+
+        # test if all of the fields have the values they should
+        for field in task_context.keys():
+            self.assertEqual(task_dict[field], task_context[field])
+
+        # test if index displays the created task
+        response = self.c.get(reverse('todolist:index'))
+        self.assertQuerySetEqual(response.context['task_list'], [task])
+
+    def test_created_task_visibility(self):
+        '''Test if created task is visible only to its owner'''
+        self.owner = User.objects.create_user(username='owner', password='abcdeg')
+        self.c.login(username='owner', password='abcdeg')
+
+        task_context = {
+            'name': 'Test Task', 
+            'description': 'Desc', 
+            'priority': 'Medium', 
+            'deadline': timezone.now(),
+            'group': [],
+        }
+
+        response = self.c.post(reverse('todolist:create_task'), task_context)
+
+        # test if redirect happened
+        self.assertEqual(response.url, reverse('todolist:index'))
+
+        # since we dont know pk, get task by the deadline
+        task = Task.objects.get(deadline=task_context['deadline'])
+
+        # test if index displays the created task for the owner
+        response = self.c.get(reverse('todolist:index'))
+        self.assertQuerySetEqual(response.context['task_list'], [task])
+
+        
+        # log out the owner and login non-owner
+        self.c.logout
+        self.login_test_user()
+
+        # test if created task isnt displayed to the non-owner
+        response = self.c.get(reverse('todolist:index'))
+        self.assertQuerySetEqual(response.context['task_list'], [])
+
+
+class AddGroupViewTests(TestCase):
+    def setUp(self):
+        self.c = Client()
+        
+        self.username = 'test_user'
+        self.password = '12345'
+        self.user = User.objects.create_user(username=self.username, password=self.password)
+
+    def test_login_required_for_unauthorized_user(self):
+        '''Testing if unauthorized user is redirected to login page when trying to add a group'''
+
+        response = self.c.post(reverse('todolist:add_group'), {'group_name': 'TestGroup'})
+        self.assertEqual(response.status_code, 302)
+
+        self.assertTrue(response.url.startswith(reverse('todolist:login')))
+
+    def test_added_group_owner(self):
+        '''Testing if the group after creation contains the user who added it as owner'''
+        self.c.login(username=self.username, password=self.password)
+        context = {'group_name': 'TestGroup'}
+
+        response = self.c.post(reverse('todolist:add_group'), context)
+        
+        self.assertEqual(response.status_code, 302)
+        # the views redirects user to the page where he`ve been, so just testing if its not login_required that happened
+        self.assertFalse(response.url.startswith(reverse('todolist:login')))
+
+        added_group = TaskGroup.objects.get(name=context['group_name'])
+        self.assertTrue(added_group.owner, self.user)
+
+
+class DeleteGroupViewTests(TestCase):
+    def setUp(self):
+        self.c = Client()
+        
+        self.username = 'test_user'
+        self.password = '12345'
+        self.user = User.objects.create_user(username=self.username, password=self.password)
+
+    def test_login_required_for_unauthorized_user(self):
+        '''Testing if unauthorized user is redirected to login page when trying to delete a group
+        (unauthorized users cant see any groups, so this test made just in case)'''
+        group = create_group(group_name='TestGroup')
+
+        response = self.c.post(reverse('todolist:delete_group'), {'group': group.pk})
+        self.assertEqual(response.status_code, 302)
+
+        self.assertTrue(response.url.startswith(reverse('todolist:login')))
+
+    def test_group_delete(self):
+        '''Testing if group delete works properly'''
+        self.c.login(username=self.username, password=self.password)
+
+        group1 = create_group(group_name='TestGroup1', user=self.user)
+        group2 = create_group(group_name='TestGroup2', user=self.user)
+
+        response = self.c.post(reverse('todolist:delete_group'), {'group': [group1.pk, group2.pk]})
+
+        self.assertEqual(response.status_code, 302)
+        # the views redirects user to the page where he`ve been, so just testing if its not login_required that happened
+        self.assertFalse(response.url.startswith(reverse('todolist:login')))
+
+        self.assertQuerySetEqual(TaskGroup.objects.all(), [])
+
+
+class RegisterViewTests(TestCase):
+    def setUp(self):
+        self.c = Client()
+
+    def test_user_creation(self):
+        '''Testing if register creates user properly'''
+        context = {
+            'username': 'JohnDoe', 
+            'email': 'jdoe97@gmail.com', 
+            'password1': 'qwerty123', 
+            'password2': 'qwerty123',
+        }
+
+        response = self.c.post(reverse('todolist:register'), context)
+        # test if user is redirected to the login after registering
+        self.assertEqual(response.url, reverse('todolist:login'))
+
+        # test if User object was created
+        self.assertNotEqual(User.objects.filter(email=context['email']), [])
+        

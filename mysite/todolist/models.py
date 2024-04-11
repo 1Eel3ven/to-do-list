@@ -43,7 +43,7 @@ class Task(OwnerMixin):
     creation_date = models.DateTimeField(auto_now_add=True)
     deadline = models.DateTimeField()
 
-    group = models.ManyToManyField(TaskGroup)
+    group = models.ManyToManyField(TaskGroup, blank=True)
 
     def is_outdated(self):
         return self.deadline <= timezone.now()
