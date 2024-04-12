@@ -6,10 +6,16 @@
 
         <form class='register_form_container' method="POST" action='{% url 'todolist:register' %}' autocomplete="off">
             {% csrf_token %}
+            
+            <div class='register_field'>
+            {% for field in register_form %}
+                    {{ field.label }}:
+                    {{ field }}
+            {% endfor %}
+            </div>
+            
 
-            {{ register_form.as_p }}
-
-            <input type="submit" value="Sign in" class='reigster_form_button btns'>
+            <input type="submit" value="Sign in" class='register_form_button btns'>
         </form>
 
         <div class='auth_alt_option'>

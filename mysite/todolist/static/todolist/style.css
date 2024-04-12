@@ -290,12 +290,48 @@ input[type=image] {
     align-items: center;
 }
 
+.register_form_container {
+    gap: 25px;
+}
+
+.register_field, .login_form_container > p {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: auto auto;
+}
+
 .auth_alt_option {
     display: flex;
+    gap: 15px;
     flex-direction: column;
     align-items: center;
 
     margin-top: 30px;
+}
+
+.register_form_button, .login_form_button {
+    width: 35%;
+    padding: 10px;
+    border-radius: 10px;
+
+    align-self: center;
+
+    background-color: #F03A47;
+    font-weight: 600;
+    cursor: pointer;
+
+    transition: background-color 0.3s;
+}
+
+.register_login_button, .login_register_button {
+    padding: 10px;
+    border-radius: 10px;
+
+    background-color: #F03A47;
+    font-weight: 600;
+    cursor: pointer;
+
+    transition: background-color 0.3s;
 }
 
 .btns:hover {

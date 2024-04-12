@@ -536,12 +536,14 @@ class RegisterViewTests(TestCase):
         context = {
             'username': 'JohnDoe', 
             'email': 'jdoe97@gmail.com', 
-            'password1': 'qwerty123', 
-            'password2': 'qwerty123',
+            'password1': '%qwerty123@', 
+            'password2': '%qwerty123@',
         }
 
         response = self.c.post(reverse('todolist:register'), context)
+
         # test if user is redirected to the login after registering
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('todolist:login'))
 
         # test if User object was created
