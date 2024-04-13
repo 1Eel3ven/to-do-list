@@ -4,10 +4,15 @@
     <div class='auth_container'>
         <h1 class='login_title'>Log in</h1>
 
-        <form class='login_form_container' method="POST" action='{% url 'todolist:login' %}' autocomplete="off">
+        <form class='login_form_container form_flex_container' method="POST" action='{% url 'todolist:login' %}' autocomplete="off">
             {% csrf_token %}
-
-            {{ login_form.as_p }}
+            
+            <div class='login_fields fields fields_grid_container'>
+                {% for field in login_form %}
+                        {{ field.label }}:
+                        {{ field }}
+                {% endfor %}
+            </div>
 
             <input type="submit" value="Login" class='login_form_button btns'>
         </form>

@@ -4,6 +4,64 @@ body {
     font-size: 25px;
 }
 
+
+
+.buttons_flex_container {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btns {
+    padding: 5px;
+    border-radius: 5px;
+
+    background-color: #F03A47;
+    font-weight: 600;
+    cursor: pointer;
+
+    transition: background-color 0.3s;
+}
+
+.btns:hover {
+    background-color: #AF5B5B;
+}
+
+.form_flex_container {
+    display: flex;
+    gap: 25px;
+    flex-direction: column;
+    align-items: center;
+}
+
+.fields_grid_container {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: auto auto;
+}
+
+
+.fields > input, select {
+    border-radius: 7px;
+    font-size: 17px;
+
+    transition: outline-color 0.4s, opacity 0.4s;
+}
+
+.fields > input:focus, select:focus {
+    outline-color: #F03A47;
+    opacity: 0.95;
+}
+
+.fields > select option:checked {
+    background-color: #F03A47;
+    color: black;
+    font-weight: 600;
+}
+
+
+
 .title {
     display: grid;
     grid-template-columns: 93% auto;
@@ -128,49 +186,17 @@ input[type=image] {
     font-weight: bold;
 }
 
-.task_create_form_add_group_button, .task_create_form_delete_group_button {
-    margin: 0 0 10% 20%;
-    padding: 5px;
-    border-radius: 5px;
-
-    background-color: #F03A47;
-    font-weight: 600;
-    cursor: pointer;
-
-    transition: background-color 0.3s;
-}
-
-.task_create_form_delete_group_button {
-    margin: auto;
-}
-
 .task_create_form_save {
     width: 50%;
-    margin-left: 25%;
     padding: 10px;
     border-radius: 10px;
 
-    background-color: #F03A47;
     font-weight: 700;
-    cursor: pointer;
-
-    transition: background-color 0.3s;
 }
 
 .task_add_group_form, .task_delete_group_form {
     left: 40%;
     top: 50%;
-}
-
-.task_add_group_form_save, .task_delete_group_form_save {
-    padding: 5px;
-    border-radius: 5px;
-
-    background-color: #F03A47;
-    font-weight: 600;
-    cursor: pointer;
-
-    transition: background-color 0.3s;
 }
 
 .task_delete_group_form_content {
@@ -211,28 +237,17 @@ input[type=image] {
     padding: 15px;
     border-radius: 15px;
     margin: 15px 0 0 28px;
-
-    background-color: #F03A47;
-    font-weight: 600;
-    cursor: pointer;
-
-    transition: background-color 0.3s;
 }
 
 
 .edit_flex_container {
-    display: flex;
-    flex-direction: column;
-
-    margin-left: 20px;
+    gap: 20px;
 }
 
 .edit_flex_container_items {
-    display: flex;
     gap: 40px;
 
     font-size: 35px;
-    margin: 20px 10px;
     padding: 10px;
 
     border-bottom: 2px solid #AF5B5B;
@@ -240,38 +255,18 @@ input[type=image] {
 
 .edit_flex_container_items > input {
     font-size: 20px;
-    border-color: #AF5B5B;
-    width: 25%;
+    width: auto;
 }
 
-.edit_buttons {
-    margin-left: 5px;
-}
-
-.task_edit_add_group_button, .task_edit_delete_group_button {
-    width: 15%;
+.edit_group_managing_buttons > button {
     padding: 10px;
     border-radius: 10px;
-
-    background-color: #F03A47;
-    font-weight: 600;
-    cursor: pointer;
-
-    transition: background-color 0.3s;
 }
 
 .edit_flex_container_save {
     width: 15%;
     padding: 15px;
     border-radius: 10px;
-
-    align-self: center;
-
-    background-color: #F03A47;
-    font-weight: 600;
-    cursor: pointer;
-
-    transition: background-color 0.3s;
 }
 
 
@@ -282,22 +277,6 @@ input[type=image] {
 
 .login_title, .register_title {
     text-align: center;
-}
-
-.login_form_container, .register_form_container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.register_form_container {
-    gap: 25px;
-}
-
-.register_field, .login_form_container > p {
-    display: grid;
-    gap: 10px;
-    grid-template-columns: auto auto;
 }
 
 .auth_alt_option {
@@ -334,6 +313,3 @@ input[type=image] {
     transition: background-color 0.3s;
 }
 
-.btns:hover {
-    background-color: #AF5B5B;
-}

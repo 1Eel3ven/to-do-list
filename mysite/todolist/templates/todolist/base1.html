@@ -35,13 +35,17 @@
 
         <!-- Pop-up windows -->
         <div class='task_add_group_form' id='task_add_group'>
-            <form method='POST' class='task_add_group_form_container' action='{% url 'todolist:add_group' %}'>
+            <form method='POST' class='task_add_group_form_container form_flex_container' action='{% url 'todolist:add_group' %}'>
                 {% csrf_token %}
                 <legend class='task_add_group_form_legend'>Add new group</legend>
-
-                <input type='text' class='add_group_name_input' name='group_name' maxlength='50' placeholder='Group name' required>
                 
-                <button type='submit' class='task_add_group_form_save btns'>Save</button>
+                <div class='task_add_group_form_content fields_grid_container'>
+                    <div class='fields'>
+                        <input type='text' name='group_name' maxlength='50' placeholder='Group name' required>
+                    </div>
+                    
+                    <button type='submit' class='task_add_group_form_save btns'>Save</button>
+                </div>
             </form>
         </div>
 
@@ -52,7 +56,9 @@
 
                 <div class='task_delete_group_form_content'>
                     <label>Select group</label>
-                    {{ task_form.group }}
+                    <div class='fields'>
+                        {{ task_form.group }}
+                    </div>
                     
                     <button type='submit' class='task_delete_group_form_save btns'>Delete</button>
                 </div>

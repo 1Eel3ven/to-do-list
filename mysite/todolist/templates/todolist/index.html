@@ -57,19 +57,29 @@
 
     <!-- Pop-up windows -->
     <div class='task_create_form' id='task_create_form'>
-        <form method='POST' class='task_create_form_container' action='{% url 'todolist:create_task' %}'>
+        <form method='POST' class='task_create_form_container form_flex_container' action='{% url 'todolist:create_task' %}'>
             {% csrf_token %}
             <legend class='task_create_form_legend'>Create new task</legend>
-            {{ task_form.as_p }}
+
+            <div class='task_create_form_fields fields fields_grid_container'>
+                {% for field in task_form %}
+                    {{ field.label }}:
+                    {{ field }}
+                {% endfor %}
+            </div>
 
             <!-- Buttons for group managing -->
-            <button type='button' class='task_create_form_add_group_button btns' onclick="openForm('task_add_group')">Add group</button>
-            <button type='button' class='task_create_form_delete_group_button btns' onclick="openForm('task_delete_group')">Delete group</button>
+            <div class='buttons_flex_container'>
+                <button type='button' class='task_create_form_add_group_button btns' onclick="openForm('task_add_group')">Add group</button>
+                <button type='button' class='task_create_form_delete_group_button btns' onclick="openForm('task_delete_group')">Delete group</button>
+            </div>
 
             <button type='submit' class='task_create_form_save btns'>Save</button>
         </form>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <script>
         function hover(element) {
             element.setAttribute('src', '{% static 'todolist/images/checkbox2.png' %}');

@@ -2,19 +2,19 @@
 
 {% block content %}
     <!-- Main form -->
-    <form class='edit_flex_container' action='{% url 'todolist:edit_task' task.id %}' method="POST">
+    <form class='edit_flex_container form_flex_container' action='{% url 'todolist:edit_task' task.id %}' method="POST">
         {% csrf_token %}
 
         <!-- Fields -->
         {% for field in task_form %}
-        <div class='edit_flex_container_items'>
+        <div class='edit_flex_container_items fields fields_grid_container'>
             {{ field.label }}:
             {{ field }}
         </div>
         {% endfor %}
 
         <!-- Buttons for group managing-->
-        <div class='edit_buttons'>
+        <div class='edit_group_managing_buttons buttons_flex_container'>
             <button type='button' class='task_edit_add_group_button btns' onclick="openForm('task_add_group')">Add group</button>
             <button type='button' class='task_edit_delete_group_button btns' onclick="openForm('task_delete_group')">Delete group</button>
         </div>

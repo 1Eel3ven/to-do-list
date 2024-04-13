@@ -4,14 +4,14 @@
     <div class='auth_container'>
         <h1 class='register_title'>Register</h1>
 
-        <form class='register_form_container' method="POST" action='{% url 'todolist:register' %}' autocomplete="off">
+        <form class='register_form_container form_flex_container' method="POST" action='{% url 'todolist:register' %}' autocomplete="off">
             {% csrf_token %}
             
-            <div class='register_field'>
-            {% for field in register_form %}
-                    {{ field.label }}:
-                    {{ field }}
-            {% endfor %}
+            <div class='register_fields fields fields_grid_container'>
+                {% for field in register_form %}
+                        {{ field.label }}:
+                        {{ field }}
+                {% endfor %}
             </div>
             
 
