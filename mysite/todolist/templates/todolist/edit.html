@@ -2,7 +2,7 @@
 
 {% block content %}
     <!-- Main form -->
-    <form class='edit_flex_container form_flex_container' action='{% url 'todolist:edit_task' task.id %}' method="POST">
+    <form class='edit_flex_container form_flex_container' action='{% url 'todolist:edit_task' task.id %}' method='POST' autocomplete='off'>
         {% csrf_token %}
 
         <!-- Fields -->

@@ -4,8 +4,14 @@
     <div class='auth_container'>
         <h1 class='login_title'>Log in</h1>
 
-        <form class='login_form_container form_flex_container' method="POST" action='{% url 'todolist:login' %}' autocomplete="off">
+        <form class='login_form_container form_flex_container' method='POST' action='{% url 'todolist:login' %}' autocomplete='on'>
             {% csrf_token %}
+
+            {% if error_message %}
+                <div class='login_error_message form_flex_container'>
+                    <div>{{ error_message }}</div>
+                </div>
+            {% endif %}
             
             <div class='login_fields fields fields_grid_container'>
                 {% for field in login_form %}
@@ -14,7 +20,7 @@
                 {% endfor %}
             </div>
 
-            <input type="submit" value="Login" class='login_form_button btns'>
+            <button type="submit" class='login_form_button btns'>Login</button>
         </form>
 
         <div class='auth_alt_option'>

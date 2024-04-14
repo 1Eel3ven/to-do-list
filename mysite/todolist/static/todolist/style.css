@@ -143,7 +143,7 @@ a {
 .task_flex_container:hover {
     background-color: #5d656a;
 
-    border: 1px solid #5d656a;
+    outline: 1px solid #5d656a;
     border-radius: 15px;
 }
 
@@ -303,18 +303,23 @@ input[type=image] {
     margin-top: 30px;
 }
 
+.register_error_messages, .login_error_message {
+    gap: 15px;
+    padding: 15px 20px;
+    border-radius: 20px;
+    outline: 4px solid #AF5B5B;
+}
+
+.register_error_messages > div, .login_error_message > div {
+    border-bottom: 2px solid #AF5B5B;
+    font-size: 24px;
+}
+
 .register_form_button, .login_form_button {
-    width: 35%;
+    min-width: 15%;
+    max-width: 35%;
     padding: 10px;
     border-radius: 10px;
-
-    align-self: center;
-
-    background-color: #F03A47;
-    font-weight: 600;
-    cursor: pointer;
-
-    transition: background-color 0.3s;
 }
 
 .register_login_button, .login_register_button {

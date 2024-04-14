@@ -4,8 +4,16 @@
     <div class='auth_container'>
         <h1 class='register_title'>Register</h1>
 
-        <form class='register_form_container form_flex_container' method="POST" action='{% url 'todolist:register' %}' autocomplete="off">
+        <form class='register_form_container form_flex_container' method='POST' action='{% url 'todolist:register' %}' autocomplete='on'>
             {% csrf_token %}
+
+            {% if error_messages %}
+                <div class='register_error_messages form_flex_container'>
+                    {% for error in error_messages %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
             
             <div class='register_fields fields fields_grid_container'>
                 {% for field in register_form %}
@@ -14,8 +22,7 @@
                 {% endfor %}
             </div>
             
-
-            <input type="submit" value="Sign in" class='register_form_button btns'>
+            <button type="submit" class='register_form_button btns'>Sign in</button>
         </form>
 
         <div class='auth_alt_option'>

@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404, HttpResponseRedirect
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.views import generic
 from django.urls import reverse
 
@@ -140,18 +140,31 @@ def DeleteGroup(request):
 
 
 def RegisterView(request):
+    context = {}
+
     if request.method == 'POST':
         form = CreateUserForm(request.POST)
 
         if form.is_valid():
             form.save()
             return redirect(reverse('todolist:login'))
+        else:
+            error_text = form.errors.get_json_data(escape_html=True)
+            error_messages = []
 
-    context = {'register_form': CreateUserForm}
+            for field_errors in error_text.values():
+                for error in field_errors:
+                    error_messages.append(error['message'])
+
+            context['error_messages'] = error_messages
+
+    context['register_form'] = CreateUserForm
 
     return render(request, 'todolist/register.html', context=context)
 
 def LoginView(request):
+    context = {}
+
     if request.method == 'POST':
         form = LoginForm(data=request.POST)
 
@@ -165,8 +178,10 @@ def LoginView(request):
                 auth.login(request, user)
 
                 return redirect(reverse('todolist:index'))
+        else:
+            context['error_message'] = 'Invalid username or password.'
 
-    context = {'login_form': LoginForm}
+    context['login_form'] = LoginForm
 
     return render(request, 'todolist/login.html', context=context)
 

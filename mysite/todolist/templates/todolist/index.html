@@ -10,7 +10,7 @@
         <ul>
             {% for task in task_list %}
                 <li>
-                    <form id='task_form_{{ task.id }}' action='{% url 'todolist:complete_task' task.id %}' method="POST" class='task_flex_container'>
+                    <form class='task_flex_container' id='task_form_{{ task.id }}' method='POST' action='{% url 'todolist:complete_task' task.id %}'>
                         {% csrf_token %}
 
                         <input type='image' class='index_checkbox' id='task_{{ task.id }}' 
@@ -57,7 +57,7 @@
 
     <!-- Pop-up windows -->
     <div class='task_create_form' id='task_create_form'>
-        <form method='POST' class='task_create_form_container form_flex_container' action='{% url 'todolist:create_task' %}'>
+        <form method='POST' class='task_create_form_container form_flex_container' action='{% url 'todolist:create_task' %}' autocomplete=off>
             {% csrf_token %}
             <legend class='task_create_form_legend'>Create new task</legend>
 
