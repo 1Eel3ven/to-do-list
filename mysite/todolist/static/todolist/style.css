@@ -1,6 +1,6 @@
 body {
     background-color: #393E41;
-    color: white;
+    color: #F6F4F3;
     font-size: 25px;
 }
 
@@ -39,12 +39,14 @@ body {
     display: grid;
     gap: 10px;
     grid-template-columns: auto auto;
+    justify-content: center;
 }
 
 
 .fields > input, select {
     border-radius: 7px;
     font-size: 17px;
+    text-align: center;
 
     transition: outline-color 0.4s, opacity 0.4s;
 }
@@ -54,9 +56,18 @@ body {
     opacity: 0.95;
 }
 
+.fields > select option {
+    transition: outline 0.2s, background-color 0.2s;
+}
+
+.fields > select option:hover {
+    background-color: #F03A47;
+    outline: 1px solid #AF5B5B;
+}
+
 .fields > select option:checked {
     background-color: #F03A47;
-    color: black;
+    outline: 1px solid #5d656a;
     font-weight: 600;
 }
 
@@ -64,23 +75,27 @@ body {
 
 .title {
     display: grid;
-    grid-template-columns: 93% auto;
+    grid-template-columns: auto auto;
+    justify-content: space-between;
 
     background-color: #F03A47;
     padding: 30px;
     margin: -20px -7px 50px -7px;
 }
 
-.title_auth_button {
-    cursor: pointer;
-    font-size: 30px;
-    align-self: center;
-
+.title > div {
     transition: opacity 0.4s;
 }
 
-.title_auth_button:hover {
+.title > div:hover {
     opacity: 0.8;
+}
+
+.title_auth_button {
+    cursor: pointer;
+    font-size: 70%;
+    align-self: center;
+
 }
 
 .index_checkbox {
@@ -93,7 +108,7 @@ ul {
 }
 
 a {
-    color: white;
+    color: #F6F4F3;;
     text-decoration: none;
 }
 
@@ -248,7 +263,7 @@ input[type=image] {
     gap: 40px;
 
     font-size: 35px;
-    padding: 10px;
+    padding: 10px 35px;
 
     border-bottom: 2px solid #AF5B5B;
 }
