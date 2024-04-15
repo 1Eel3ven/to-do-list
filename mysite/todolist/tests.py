@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from django.test import TestCase, Client
-from django.urls import reverse
+from django.urls import reverse, resolve
 from django.utils import timezone
 from django.forms.models import model_to_dict
 
@@ -548,4 +548,21 @@ class RegisterViewTests(TestCase):
 
         # test if User object was created
         self.assertNotEqual(User.objects.filter(email=context['email']), [])
+
+    def test_error_message_display(self):
+        '''Testing if error message is displayed on the page when validation of form fails'''
+        context = {
+                    'username': 'JohnDoe', 
+                    'email': 'jdoe97@gmail.com', 
+                    'password1': '123', 
+                    'password2': '123',
+                }
+        
+        response = self.c.post(reverse('todolist:register'), context)
+
+        # test if user is redirected back to the register
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(resolve(response.request['PATH_INFO']).url_name, 'register')
+
+        self.assertIn('error_messages', response.content.decode('utf-8'))
         

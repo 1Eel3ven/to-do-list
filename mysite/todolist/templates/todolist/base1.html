@@ -14,7 +14,7 @@
                     <a href='{% url 'todolist:index' %}'>WorkDone List</a>
                 </div>
 
-                <div class='title_auth_button'>
+                <!-- <div class='title_auth_button'>
                     {% if user.is_authenticated %}
                         <a class='log_out' href='{% url 'todolist:logout' %}'>
                             Log out
@@ -24,8 +24,28 @@
                             Log in
                         </a>
                     {% endif %}
+                </div> -->
+                
+                <div class='burger_button' onclick="openForm('menu')">
+                    <img src='{% static 'todolist/images/burger.png' %}' class='burger'>
                 </div>
             </h1>
+
+            <div class='burger_menu'>
+                <div id="menu">
+                    <a class='account' href='#'>Account</a>
+
+                    {% if user.is_authenticated %}
+                        <a class='log_out' href='{% url 'todolist:logout' %}'>
+                            Log out
+                        </a>
+                        {% else %}
+                        <a class='log_in' href='{% url 'todolist:login' %}'>
+                                Log in
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
         </header>
 
         <main>
