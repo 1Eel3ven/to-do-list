@@ -15,5 +15,6 @@ urlpatterns = [
     path('deletegroup/', views.DeleteGroup, name='delete_group'),
     path('login/', views.LoginView, name='login'),
     path('register/', views.RegisterView, name='register'),
-    path('logout/', views.LogOutView, name='logout')
+    path('logout/', views.LogOutView, name='logout'),
+    path('dashboard/', views.DashboardView.as_view(), name='dashboard'),
 ]

@@ -50,3 +50,15 @@ class Task(OwnerMixin):
 
     def __str__(self):
         return self.name
+
+class CompletedTask(OwnerMixin):
+    # model that stores info about recently completed task
+    # instance is created by an actual complete view
+
+    name = models.CharField(max_length=50)
+    complete_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+    
+    # Implement everyday cleaning of completed task objects later

@@ -1,4 +1,4 @@
-{% extends 'todolist/base1.html' %}
+{% extends 'todolist/base.html' %}
 
 <head>
     {% load static %}
@@ -33,7 +33,7 @@
                             </div>
                             <div>
                                 {% if not task.is_outdated %}
-                                    Do until {{ task.deadline }}
+                                    Do before {{ task.deadline }}
                                 {% else %}
                                     <!-- Display appropriate message if task is beyond deadline-->
                                     <span class='outdated'>Outdated</span>

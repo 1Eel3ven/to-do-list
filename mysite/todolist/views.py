@@ -3,11 +3,13 @@ from django.http import Http404, JsonResponse
 from django.views import generic
 from django.urls import reverse
 
+from datetime import datetime
+
 from django.contrib.auth.models import auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate
 
-from .models import Task, TaskGroup
+from .models import Task, TaskGroup, CompletedTask
 from .forms import TaskForm, GroupForm, LoginForm, CreateUserForm
 
 class IndexView(generic.ListView):
@@ -49,11 +51,14 @@ class DetailView(generic.DetailView):
         return task
     
 def CompleteTask(request, task_id):
+    user_id = request.user.id
+
     try:
-        task = Task.objects.get(pk=task_id, owner_id=request.user.id)
+        task = Task.objects.get(pk=task_id, owner_id=user_id)
     except:
         raise Http404('Task doesnt exist')
     
+    CompletedTask.objects.create(name=task.name, owner_id=user_id)
     task.delete()
     return redirect('todolist:index')
 
@@ -189,3 +194,20 @@ def LogOutView(request):
     auth.logout(request)
 
     return redirect(reverse('todolist:index'))
+
+class DashboardView(generic.ListView):
+    template_name = 'todolist/dashboard.html'
+
+    def get_queryset(self):
+        task_list = Task.objects.filter(owner_id=self.request.user.id).order_by('-deadline')[:5]
+
+        return task_list
+    
+    def get_context_data(self, **kwargs):
+        completed_recently = CompletedTask.objects.filter(owner_id=self.request.user.id)
+
+        context = super().get_context_data(**kwargs)
+        context['completed_recently'] = completed_recently[:4]
+        context['completed_today'] = len(completed_recently)
+
+        return context

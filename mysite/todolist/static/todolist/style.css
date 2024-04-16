@@ -274,7 +274,7 @@ input[type=image] {
 .detail_flex_container > div {
     margin: 0px 10px;
 
-    border-bottom: 2px solid #d05151;
+    border-bottom: 2px solid #AF5B5B;
 }
 
 .detail_time_info {
@@ -289,7 +289,6 @@ input[type=image] {
     margin: 15px 0 0 28px;
 }
 
-
 .edit_flex_container {
     gap: 20px;
 }
@@ -300,7 +299,7 @@ input[type=image] {
     font-size: 35px;
     padding: 10px 35px;
 
-    border-bottom: 2px solid #d05151;
+    border-bottom: 2px solid #AF5B5B;
 }
 
 .edit_flex_container_items > input {
@@ -346,7 +345,7 @@ input[type=image] {
 }
 
 .register_error_messages > div, .login_error_message > div {
-    border-bottom: 2px solid #d05151;
+    border-bottom: 2px solid #AF5B5B;
     font-size: 24px;
 }
 
@@ -368,3 +367,45 @@ input[type=image] {
     transition: background-color 0.3s;
 }
 
+.dashboard_container {
+    display: grid;
+    grid-template-columns: 25% 25% auto;
+    gap: 4%;
+}
+
+.dashboard_container > div {
+    border: 6px solid #5d656a;
+    padding: 10px 15px;
+}
+
+.dashboard_container > div > h2 {
+    margin: 15px 0px;
+}
+
+.deadline_soon_tasks, .completed_recently_tasks {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.deadline_soon_tasks a > div, .completed_recently_tasks > div {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    padding: 12px;
+    background-color: #5d656a;
+
+    transition: background-color 0.4s;
+}
+
+.deadline_soon_tasks a > div:hover, .completed_recently_tasks > div:hover {
+    background-color: #4c5357;
+}
+
+.deadline_soon_task_name, .completed_recently_task_name {
+    font-weight: 600;
+    font-size: 115%;
+    padding-bottom: 4px;
+    border-bottom: 2px solid #AF5B5B;
+}

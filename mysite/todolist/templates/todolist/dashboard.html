@@ -1,0 +1,66 @@
+{% extends 'todolist/base.html' %}
+
+{% block content %}
+    <div class='dashboard_container'>
+        <div class='deadline_soon_container'>
+            <h2 class='deadline_soon_header'>
+                Deadline soon!
+            </h2>
+
+            <div class='deadline_soon_tasks'>
+                {% if task_list %}
+                    {% for task in task_list %}
+                        <a href='{% url 'todolist:detail' task.id %}'>
+                            <div class='deadline_soon_task_{{ task.id }}'>
+                                <div class='deadline_soon_task_name'>
+                                    {{ task.name }}
+                                    
+                                    {% if task.is_outdated %}
+                                        —
+                                        <span>Outdated</span>
+                                    {% endif %}
+                                </div>
+
+                                <div>
+                                    Priority: {{ task.priority }}
+                                </div>
+
+                                <div>
+                                    Deadline: {{ task.deadline }}
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class='completed_today_container'>
+            <h2>
+                Tasks completed today: {{ completed_today }}
+            </h2>
+
+            <div class='completed_recently'>
+                <h3>
+                    Completed recently:
+                </h3>
+    
+                <div class='completed_recently_tasks'>
+                    {% if completed_recently %}
+                        {% for task in completed_recently %}
+                            <div class='completed_recently_task_{{ task.id }}'>
+                                <div class='completed_recently_task_name'>
+                                    {{ task.name }}
+                                </div>
+
+                                <div>
+                                    Completed at: {{ task.complete_date.time }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
