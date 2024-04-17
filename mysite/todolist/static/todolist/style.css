@@ -268,7 +268,7 @@ input[type=image] {
     display: flex;
     flex-direction: column;
 
-    margin-left: 20px;
+    margin-left: 1%;
 }
 
 .detail_flex_container > div {
@@ -277,16 +277,20 @@ input[type=image] {
     border-bottom: 2px solid #AF5B5B;
 }
 
+.detail_flex_container > div:last-child {
+    border-bottom: none;
+}
+
+.detail_buttons button {
+    margin: 10px 0;
+    padding: 15px 20px;
+    font-size: 55%;
+    border-radius: 15px;
+}
+
 .detail_time_info {
     text-align: right;
     padding: 15px 0px;
-}
-
-.detail_edit_button {
-    width: 10%;
-    padding: 15px;
-    border-radius: 15px;
-    margin: 15px 0 0 28px;
 }
 
 .edit_flex_container {
@@ -383,8 +387,7 @@ input[type=image] {
 }
 
 .deadline_soon_tasks, .completed_recently_tasks {
-    display: flex;
-    flex-direction: column;
+    align-items: stretch;
     gap: 20px;
 }
 

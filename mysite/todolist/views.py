@@ -1,12 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404, HttpResponseRedirect
-from django.http import Http404, JsonResponse
+from django.http import Http404
 from django.views import generic
 from django.urls import reverse
 
-from datetime import datetime
-
 from django.contrib.auth.models import auth
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import authenticate
 
 from .models import Task, TaskGroup, CompletedTask
@@ -195,7 +194,7 @@ def LogOutView(request):
 
     return redirect(reverse('todolist:index'))
 
-class DashboardView(generic.ListView):
+class DashboardView(LoginRequiredMixin, generic.ListView):
     template_name = 'todolist/dashboard.html'
 
     def get_queryset(self):

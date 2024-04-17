@@ -7,7 +7,7 @@
                 Deadline soon!
             </h2>
 
-            <div class='deadline_soon_tasks'>
+            <div class='deadline_soon_tasks form_flex_container'>
                 {% if task_list %}
                     {% for task in task_list %}
                         <a href='{% url 'todolist:detail' task.id %}'>
@@ -45,7 +45,7 @@
                     Completed recently:
                 </h3>
     
-                <div class='completed_recently_tasks'>
+                <div class='completed_recently_tasks form_flex_container'>
                     {% if completed_recently %}
                         {% for task in completed_recently %}
                             <div class='completed_recently_task_{{ task.id }}'>
