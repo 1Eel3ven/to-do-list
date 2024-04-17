@@ -198,7 +198,7 @@ class DashboardView(LoginRequiredMixin, generic.ListView):
     template_name = 'todolist/dashboard.html'
 
     def get_queryset(self):
-        task_list = Task.objects.filter(owner_id=self.request.user.id).order_by('-deadline')[:5]
+        task_list = Task.objects.filter(owner_id=self.request.user.id).order_by('deadline')[:5]
 
         return task_list
     
@@ -206,7 +206,7 @@ class DashboardView(LoginRequiredMixin, generic.ListView):
         completed_recently = CompletedTask.objects.filter(owner_id=self.request.user.id)
 
         context = super().get_context_data(**kwargs)
-        context['completed_recently'] = completed_recently[:4]
+        context['completed_recently'] = completed_recently.order_by('complete_date')[:4]
         context['completed_today'] = len(completed_recently)
 
         return context

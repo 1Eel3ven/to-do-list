@@ -2,22 +2,22 @@
 
 {% block content %}
     <div class='dashboard_container'>
-        <div class='deadline_soon_container'>
-            <h2 class='deadline_soon_header'>
-                Deadline soon!
+        <div class='upcoming_deadlines_container'>
+            <h2 class='upcoming_deadlines_header'>
+                Upcoming deadlines
             </h2>
 
-            <div class='deadline_soon_tasks form_flex_container'>
+            <div class='upcoming_deadlines_tasks form_flex_container'>
                 {% if task_list %}
                     {% for task in task_list %}
                         <a href='{% url 'todolist:detail' task.id %}'>
-                            <div class='deadline_soon_task_{{ task.id }}'>
-                                <div class='deadline_soon_task_name'>
+                            <div class='upcoming_deadlines_task_{{ task.id }}'>
+                                <div class='upcoming_deadlines_task_name fields_grid_container'>
                                     {{ task.name }}
                                     
                                     {% if task.is_outdated %}
-                                        —
-                                        <span>Outdated</span>
+                                        <!-- Message if task is outdated -->
+                                        <span class='outdated'>Outdated</span>
                                     {% endif %}
                                 </div>
 
@@ -31,6 +31,9 @@
                             </div>
                         </a>
                     {% endfor %}
+                {% else %}
+                        <!-- Message if task_list is empty -->
+                        You dont have any tasks yet.
                 {% endif %}
             </div>
         </div>
@@ -58,6 +61,9 @@
                                 </div>
                             </div>
                         {% endfor %}
+                    {% else %}
+                        <!-- Message if no tasks completed today -->
+                        You havent completed any tasks recently.
                     {% endif %}
                 </div>
             </div>

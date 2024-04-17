@@ -7,7 +7,7 @@ from django.forms.models import model_to_dict
 
 from django.contrib.auth.models import User
 
-from .models import Task, TaskGroup
+from .models import Task, TaskGroup, CompletedTask
 
 def create_task(task_name, desc='desc', pr='Medium', days=5, groups=None, user=None):
     '''Creates a task with deadline offset to now;
@@ -47,7 +47,7 @@ class IndexTaskViewTests(TestCase):
         response = self.c.get(reverse('todolist:index'))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'You dont have tasks for now.')
+        self.assertContains(response, 'You dont have any tasks yet.')
         self.assertQuerySetEqual(response.context['task_list'], [])
 
     def test_outdated_task(self):
@@ -565,4 +565,124 @@ class RegisterViewTests(TestCase):
         self.assertEqual(resolve(response.request['PATH_INFO']).url_name, 'register')
 
         self.assertIn('error_messages', response.content.decode('utf-8'))
+
+class DashboardViewTests(TestCase):
+    def setUp(self):
+        self.c = Client()
         
+        self.username = 'test_user'
+        self.password = '12345'
+        self.user = User.objects.create_user(username=self.username, password=self.password)
+
+    def login_test_user(self):
+        self.c.login(username=self.username, password=self.password)
+
+    def test_login_required_for_unauthorized_user(self):
+        '''Testing if unauthorized user is redirected to login page when trying to access dashboard'''
+        response = self.c.get(reverse('todolist:dashboard'))
+        self.assertEqual(response.status_code, 302)
+
+        self.assertTrue(response.url.startswith(reverse('todolist:login')))
+    
+    def test_empty_task_list_message(self):
+        '''Testing if proper message is displayed in upcoming deadlines container if task list is empty'''
+        self.login_test_user()
+
+        response = self.c.get(reverse('todolist:dashboard'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerySetEqual(response.context['task_list'], [])
+        self.assertContains(response, 'You dont have any tasks yet.')
+
+    def test_upcoming_deadline_tasks(self):
+        '''Testing display of the tasks with upcoming deadline'''
+        tasks = []
+        self.login_test_user()
+
+        # since only first 5 tasks with closest deadline are displayed, 
+        # we`ll also checking that other wont be displayed
+        for i in range(1, 7):
+            task = create_task(task_name=f'Task {i}', days=i, user=self.user)
+            tasks.append(task)
+
+        response = self.c.get(reverse('todolist:dashboard'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerySetEqual(response.context['task_list'], tasks[:5])
+
+    def test_outdated_message(self):
+        '''Testing if proper message is displayed if task is outdated already'''
+        self.login_test_user()
+
+        task = create_task(task_name='Task', days=-1, user=self.user)
+
+        response = self.c.get(reverse('todolist:dashboard'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerySetEqual(response.context['task_list'], [task])
+        self.assertContains(response, 'Outdated')
+
+    def test_completed_today_increment(self):
+        '''Testing increment of completed tasks counter'''
+        self.login_test_user()
+
+        task = create_task(task_name='Task', user=self.user)
+        
+        response = self.c.get(reverse('todolist:dashboard'))
+
+        # test if counter is 0 initially
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['completed_today'], 0)
+
+        # increment
+        request = self.c.post(reverse('todolist:complete_task', args=[task.pk]))
+        self.assertNotEqual(request.status_code, 404)
+
+        # test if increment counted
+        response = self.c.get(reverse('todolist:dashboard'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['completed_today'], 1)
+
+    def test_no_tasks_completed_recently_message(self):
+        '''Testing if proper message is displayed in completed recently tasks container if user havent completed any tasks'''
+        self.login_test_user()
+
+        response = self.c.get(reverse('todolist:dashboard'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerySetEqual(response.context['completed_recently'], [])
+        self.assertContains(response, 'You havent completed any tasks recently.')
+
+    def test_completed_recently(self):
+        '''Testing display of recently completed tasks'''
+        tasks = []
+        self.login_test_user()
+
+        # since only first 4 recently completed tasks by complete time are displayed, 
+        # we`ll also checking that other wont be displayed
+        for i in range(1, 6):
+            task = create_task(task_name=f'Task {i}', days=i, user=self.user)
+            tasks.append(task)
+
+        # test if recent tasks are empty initially
+        response = self.c.get(reverse('todolist:dashboard'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerySetEqual(response.context['completed_recently'], [])
+
+        # complete tasks
+        for i in range(len(tasks)):
+            task = tasks[i]
+
+            request = self.c.post(reverse('todolist:complete_task', args=[task.pk]))
+            self.assertNotEqual(request.status_code, 404)
+
+            # for further comparison with the queryset
+            tasks[i] = CompletedTask.objects.get(name=task.name)
+
+        # test if recently completed tasks are displayed
+        response = self.c.get(reverse('todolist:dashboard'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerySetEqual(response.context['completed_recently'], tasks[:4])

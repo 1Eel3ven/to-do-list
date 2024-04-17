@@ -386,12 +386,12 @@ input[type=image] {
     margin: 15px 0px;
 }
 
-.deadline_soon_tasks, .completed_recently_tasks {
+.upcoming_deadlines_tasks, .completed_recently_tasks {
     align-items: stretch;
     gap: 20px;
 }
 
-.deadline_soon_tasks a > div, .completed_recently_tasks > div {
+.upcoming_deadlines_tasks a > div, .completed_recently_tasks > div {
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -402,13 +402,17 @@ input[type=image] {
     transition: background-color 0.4s;
 }
 
-.deadline_soon_tasks a > div:hover, .completed_recently_tasks > div:hover {
+.upcoming_deadlines_tasks a > div:hover, .completed_recently_tasks > div:hover {
     background-color: #4c5357;
 }
 
-.deadline_soon_task_name, .completed_recently_task_name {
+.upcoming_deadlines_task_name, .completed_recently_task_name {
     font-weight: 600;
     font-size: 115%;
     padding-bottom: 4px;
     border-bottom: 2px solid #AF5B5B;
+}
+
+.upcoming_deadlines_task_name {
+    justify-content: space-between;
 }
