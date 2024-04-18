@@ -1,1 +1,1 @@
-Project that uses todolist app which I`ll make
+Todolist app on Django
