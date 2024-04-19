@@ -1,5 +1,9 @@
 {% extends 'todolist/base.html' %}
 
+<head>
+    {% load static %}
+</head>
+
 {% block content %}
     <div class='dashboard_container'>
         <div class='upcoming_deadlines_container'>
@@ -39,9 +43,13 @@
         </div>
         
         <div class='completed_today_container'>
-            <h2>
-                Tasks completed today: {{ completed_today }}
-            </h2>
+            <div class='completed_today_counter fields_grid_container'>
+                <h2>Tasks completed today: {{ completed_today }}</h2>
+
+                <div class='completed_today_clean' onclick="openForm('clean_completed_today')">
+                    <img src='{% static 'todolist/images/bin.png' %}' class='completed_today_clean_button' title='Clean progress?'>
+                </div>
+            </div>
 
             <div class='completed_recently'>
                 <h3>
@@ -50,14 +58,20 @@
     
                 <div class='completed_recently_tasks form_flex_container'>
                     {% if completed_recently %}
-                        {% for task in completed_recently %}
-                            <div class='completed_recently_task_{{ task.id }}'>
+                        {% for ctask in completed_recently %}
+                            <div class='completed_recently_task_{{ ctask.id }}'>
                                 <div class='completed_recently_task_name'>
-                                    {{ task.name }}
+                                    {{ ctask.name }}
                                 </div>
 
-                                <div>
-                                    Completed at: {{ task.complete_date.time }}
+                                <div class='completed_recently_desc fields_grid_container'>
+                                    <div>
+                                        Completed at: {{ ctask.complete_date.time }}
+                                    </div>
+
+                                    <a class='completed_recently_delete' href='{% url 'todolist:clean_completed_task' ctask.id %}' title='Delete record?'>
+                                        <img src='{% static 'todolist/images/bin.png' %}' class='completed_recently_delete_button'>
+                                    </a>
                                 </div>
                             </div>
                         {% endfor %}
@@ -69,4 +83,35 @@
             </div>
         </div>
     </div>
+
+
+    <!-- Pop-up for cleaning recent tasks manually -->
+    <div class='clean_completed_today' id='clean_completed_today'>
+        <form method='POST' class='clean_completed_today_container form_flex_container' 
+        action='{% url 'todolist:clean_completed_tasks' %}' autocomplete=off>
+            {% csrf_token %}
+            <div class='clean_completed_today_content form_flex_container'>
+                <legend class='clean_completed_today_legend'>
+                    Are you sure you want to clean recent tasks?
+                </legend>
+
+                <div class='clean_completed_today_warning'>
+                    This action will also drop the task counter.
+                </div>
+            </div>
+
+            <div class='clean_completed_today_buttons buttons_flex_container'>
+                <button type='submit' class='btns'>Yes</button>
+                <button type='button' class='btns' onclick="openForm('clean_completed_today')">No</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script>
+        $(function() {
+            $('#clean_completed_today').draggable();
+        });
+    </script>
 {% endblock %}

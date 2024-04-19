@@ -170,23 +170,6 @@ a {
     gap: 20px;
 }
 
-.task_buttons .task_edit_tooltip {
-    width: 120px;
-    background-color: black;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px 0;
-    position: absolute;
-    z-index: 1;
-    bottom: 82%;
-    left: 98%;
-    margin-left: -60px;
-    
-    opacity: 0;
-    transition: opacity 1s;
-}
-
 .task_edit_button, .task_delete_button {
     opacity: 0;
     cursor: pointer;
@@ -236,9 +219,11 @@ input[type=image] {
     background-color: #d05151;
 }
   
-.task_create_form, .task_add_group_form, .task_delete_group_form {
+.task_create_form, .task_add_group_form, .task_delete_group_form, .clean_completed_today {
     display: none;
     position: absolute;
+    top: 30%;
+    left: 35%;
     cursor: move;
 
     border: 5px solid #d05151;
@@ -246,14 +231,14 @@ input[type=image] {
     z-index: 9;
 }
   
-.task_create_form_container, .task_add_group_form_container, .task_delete_group_form_container {
+.task_create_form_container, .task_add_group_form_container, .task_delete_group_form_container, .clean_completed_today_container {
     padding: 40px 80px;
     border-radius: 10px;
     background-color: #F6F4F3;
     color: black;
 }
 
-.task_create_form_legend, .task_add_group_form_legend, .task_delete_group_form_legend {
+.task_create_form_legend, .task_add_group_form_legend, .task_delete_group_form_legend, .clean_completed_today_legend {
     text-align: center;
     font-size: 30px;
     font-weight: bold;
@@ -268,7 +253,7 @@ input[type=image] {
 }
 
 .task_add_group_form, .task_delete_group_form {
-    left: 40%;
+    left: 38%;
     top: 50%;
 }
 
@@ -396,7 +381,7 @@ input[type=image] {
 
 .dashboard_container {
     display: grid;
-    grid-template-columns: 25% 25% auto;
+    grid-template-columns: 25% 28% auto;
     gap: 4%;
 }
 
@@ -407,6 +392,52 @@ input[type=image] {
 
 .dashboard_container > div > h2 {
     margin: 15px 0px;
+}
+
+.completed_today_counter {
+    grid-template-columns: auto 40px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.completed_today_clean_button, .completed_recently_delete_button {
+    cursor: pointer;
+    opacity: 0.8;
+
+    width: 40px;
+    height: 40px;
+
+    transition: opacity 0.2s;
+}
+
+.completed_recently_delete_button {
+    width: 35px;
+    height: 35px;
+}
+
+.completed_today_clean_button:hover, .completed_recently_delete_button:hover {
+    opacity: 1;
+}
+
+.clean_completed_today_container {
+    padding: 30px 30px;
+}
+
+.clean_completed_today_content {
+    gap: 7px;
+}
+
+.clean_completed_today_warning {
+    color: red;
+}
+
+.clean_completed_today_buttons > button {
+    width: auto;
+    padding: 5px 10px;
+}
+
+.completed_recently {
+    padding-bottom: 15px;
 }
 
 .upcoming_deadlines_tasks, .completed_recently_tasks {
@@ -436,6 +467,6 @@ input[type=image] {
     border-bottom: 2px solid #AF5B5B;
 }
 
-.upcoming_deadlines_task_name {
+.upcoming_deadlines_task_name, .completed_recently_desc {
     justify-content: space-between;
 }

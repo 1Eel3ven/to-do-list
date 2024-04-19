@@ -221,3 +221,23 @@ class DashboardView(LoginRequiredMixin, generic.ListView):
         context['completed_today'] = len(completed_recently)
 
         return context
+    
+def CleanCompletedTask(request, ctask_id=None):
+    user_id = request.user.id
+
+    if not ctask_id and request.method == 'POST':
+        # if id of completed task isnt provided and request came from the form, clean all
+        completed_tasks = CompletedTask.objects.filter(owner_id=user_id)
+
+    elif ctask_id and request.method == 'GET':
+        # if id provided and request came from link
+        try:
+            completed_tasks = CompletedTask.objects.get(pk=ctask_id, owner_id=user_id)
+        except:
+            raise Http404('Task doesnt exist')
+    else:
+        raise Http404('Task doesnt exist')
+    
+
+    completed_tasks.delete()
+    return redirect('todolist:dashboard')
