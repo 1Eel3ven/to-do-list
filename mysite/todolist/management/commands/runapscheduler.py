@@ -17,7 +17,8 @@ def clean_completed_tasks():
   Cleans all the instances, since this model just stores info on completed tasks
   """
 
-  print(CompletedTask.objects.all().delete())
+  CompletedTask.objects.all().delete()
+  print('Cleaning of Completed Tasks - successful.')
     
 
 @util.close_old_connections
@@ -29,7 +30,7 @@ def delete_old_job_executions(max_age=604_800):
     """
   
     DjangoJobExecution.objects.delete_old_job_executions(max_age)
-
+    print('Delete of old job executions - successful.')
 
 class Command(BaseCommand):
   "Runs apscheduler"

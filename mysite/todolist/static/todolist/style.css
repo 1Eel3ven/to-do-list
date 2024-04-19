@@ -162,15 +162,38 @@ a {
 
 .task_grid_container {
     display: grid;
-    grid-template-columns: 300px 300px 300px 300px 24px;
+    grid-template-columns: 300px 300px 300px 400px auto;
 }
 
-.task_edit_button {
+.task_buttons {
+    align-self: center;
+    gap: 20px;
+}
+
+.task_buttons .task_edit_tooltip {
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 82%;
+    left: 98%;
+    margin-left: -60px;
+    
+    opacity: 0;
+    transition: opacity 1s;
+}
+
+.task_edit_button, .task_delete_button {
     opacity: 0;
     cursor: pointer;
 
-    width: 24px;
-    height: 24px;
+    width: 30px;
+    height: 30px;
+    align-self: center;
 
     transition: opacity 0.3s;
 }
@@ -182,7 +205,7 @@ a {
     border-radius: 15px;
 }
 
-.task_flex_container:hover .task_grid_container .task_edit_button {
+.task_flex_container:hover .task_grid_container .task_buttons a img {
     opacity: 1;
 }
 

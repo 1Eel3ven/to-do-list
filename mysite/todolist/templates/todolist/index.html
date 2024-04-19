@@ -13,7 +13,7 @@
                     <form class='task_flex_container' id='task_form_{{ task.id }}' method='POST' action='{% url 'todolist:complete_task' task.id %}'>
                         {% csrf_token %}
 
-                        <input type='image' class='index_checkbox' id='task_{{ task.id }}' 
+                        <input type='image' class='index_checkbox' id='task_{{ task.id }}' title='Complete task' 
                         src='{% static 'todolist/images/checkbox1.png' %}' onmouseover='hover(this);' onmouseout='unhover(this);'>
                         
                         <div class='task_grid_container'>
@@ -33,15 +33,22 @@
                             </div>
                             <div>
                                 {% if not task.is_outdated %}
-                                    Do before {{ task.deadline }}
+                                    Do before: {{ task.deadline }}
                                 {% else %}
                                     <!-- Display appropriate message if task is beyond deadline-->
                                     <span class='outdated'>Outdated</span>
                                 {% endif %}
                             </div>
-                            <a class='task_edit' href='{% url 'todolist:edit' task.id %}'>
-                                <img src='{% static 'todolist/images/edit.png' %}' class='task_edit_button'>
-                            </a>
+
+                            <div class='task_buttons fields_grid_container'>
+                                <a class='task_edit' href='{% url 'todolist:edit' task.id %}' title='Edit task'>
+                                    <img src='{% static 'todolist/images/edit.png' %}' class='task_edit_button'>
+                                </a>
+
+                                <a class='task_delete' href='{% url 'todolist:delete_task' task.id %}' title='Delete task'>
+                                    <img src='{% static 'todolist/images/bin.png' %}' class='task_delete_button'>
+                                </a>
+                            </div>
                         </div>
                     </form>
                 </li>

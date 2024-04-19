@@ -9,6 +9,7 @@ urlpatterns = [
     path('<int:pk>/', views.DetailView.as_view(), name='detail'),
     path('<int:pk>/edit/', views.EditView.as_view(), name='edit'),
     path('<int:task_id>/complete/', views.CompleteTask, name='complete_task'),
+    path('<int:task_id>/delete/', views.DeleteTask, name='delete_task'),
     path('create/', views.CreateTask, name='create_task'),
     path('<int:task_id>/edit_task/', views.EditTask, name='edit_task'),
     path('addgroup/', views.AddGroup, name='add_group'),

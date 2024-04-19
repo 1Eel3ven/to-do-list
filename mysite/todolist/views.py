@@ -61,6 +61,17 @@ def CompleteTask(request, task_id):
     task.delete()
     return redirect('todolist:index')
 
+def DeleteTask(request, task_id):
+    user_id = request.user.id
+
+    try:
+        task = Task.objects.get(pk=task_id, owner_id=user_id)
+    except:
+        raise Http404('Task doesnt exist')
+    
+    task.delete()
+    return redirect('todolist:index')
+
 class EditView(generic.DetailView):
     # Loads a page with form for editing task instance
     model = Task
