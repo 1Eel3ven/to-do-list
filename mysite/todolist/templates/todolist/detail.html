@@ -26,14 +26,18 @@
         </div>
 
         <div class='detail_buttons buttons_flex_container'>
-            <a href='{% url 'todolist:edit' task.id %}'>
-                <button type='button' class='detail_edit_button btns'>Edit</button>
-            </a>
-
             <form class='detail_complete_container' method='POST' action='{% url 'todolist:complete_task' task.id %}'>
                 {% csrf_token %}
                 <button type='submit' class='detail_complete_button btns'>Mark as complete</button>
             </form>
+
+            <a href='{% url 'todolist:delete_task' task.id %}'>
+                <button type='button' class='detail_delete_button btns'>Delete</button>
+            </a>
+
+            <a href='{% url 'todolist:edit' task.id %}'>
+                <button type='button' class='detail_edit_button btns'>Edit</button>
+            </a>
         </div>
     </div>
 {% endblock %}

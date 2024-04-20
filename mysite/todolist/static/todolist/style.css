@@ -71,8 +71,6 @@ body {
     font-weight: 600;
 }
 
-
-
 .title {
     display: grid;
     grid-template-columns: auto auto;

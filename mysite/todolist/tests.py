@@ -245,6 +245,54 @@ class CompleteTaskViewTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
 
+class DeleteTaskViewTests(TestCase):
+    def setUp(self):
+        self.c = Client()
+        
+        self.username = 'test_user'
+        self.password = '12345'
+        self.user = User.objects.create_user(username=self.username, password=self.password)
+
+    def login_test_user(self):
+        self.c.login(username=self.username, password=self.password)
+
+    def test_404_for_unauthorized_user(self):
+        '''Test if 404 is given when unauthorized user tries to access this view'''
+        task = create_task(task_name='Task', user=self.user)
+
+        response = self.c.post(reverse('todolist:delete_task', args=[task.pk]))
+        self.assertEqual(response.status_code, 404)
+
+    def test_404_for_trying_to_delete_other_user_Task(self):
+        '''Test if 404 is given when non-owner of the task tries to delete it'''
+        self.owner = User.objects.create_user(username='owner_user', password='abcdeg')
+        self.login_test_user()
+
+        task = create_task(task_name='Task', user=self.owner)
+
+        response = self.c.post(reverse('todolist:delete_task', args=[task.pk]))
+        self.assertEqual(response.status_code, 404)
+
+    def test_task_delete(self):
+        '''Test if delete works overall'''
+        self.login_test_user()
+
+        task = create_task(task_name='Task', user=self.user)
+
+        # test if its initially displayed
+        response = self.c.get(reverse('todolist:index'))
+        self.assertQuerySetEqual(response.context['task_list'], [task])
+
+        # delete
+        response = self.c.post(reverse('todolist:delete_task', args=[task.pk]))
+        self.assertNotEqual(response.status_code, 404)
+        self.assertTrue(response.url.startswith(reverse('todolist:index')))
+
+        # test if it dissapeared
+        response = self.c.get(reverse('todolist:index'))
+        self.assertQuerySetEqual(response.context['task_list'], [])
+
+
 class EditPageTests(TestCase):
     def setUp(self):
         self.c = Client()
