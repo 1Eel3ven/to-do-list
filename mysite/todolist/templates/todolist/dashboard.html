@@ -88,7 +88,7 @@
     <!-- Pop-up for cleaning recent tasks manually -->
     <div class='clean_completed_today' id='clean_completed_today'>
         <form method='POST' class='clean_completed_today_container form_flex_container' 
-        action='{% url 'todolist:clean_completed_tasks' %}' autocomplete=off>
+        action='{% url 'todolist:clean_completed_task' %}' autocomplete=off>
             {% csrf_token %}
             <div class='clean_completed_today_content form_flex_container'>
                 <legend class='clean_completed_today_legend'>

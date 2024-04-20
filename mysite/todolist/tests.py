@@ -29,6 +29,14 @@ def create_task(task_name, desc='desc', pr='Medium', days=5, groups=None, user=N
 
     return task
 
+def create_completed_task(task_name, user=None):
+    '''Creates a completed task instance in case you dont need to complete it manually'''
+    user_id = user.id if user else None
+
+    ctask = CompletedTask.objects.create(name=task_name, owner_id=user_id)
+
+    return ctask
+
 def create_group(group_name, user=None):
     user_id = user.id if user else None
 
@@ -635,14 +643,60 @@ class DashboardViewTests(TestCase):
         self.assertEqual(response.context['completed_today'], 0)
 
         # increment
-        request = self.c.post(reverse('todolist:complete_task', args=[task.pk]))
-        self.assertNotEqual(request.status_code, 404)
+        response = self.c.post(reverse('todolist:complete_task', args=[task.pk]))
+        self.assertNotEqual(response.status_code, 404)
 
         # test if increment counted
         response = self.c.get(reverse('todolist:dashboard'))
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['completed_today'], 1)
+
+    def test_completed_today_dicrease(self):
+        '''Test if completed today counter dicreases after cleaning a ctask'''
+        self.login_test_user()
+
+        ctask = create_completed_task(task_name='Task', user=self.user)
+
+        response = self.c.get(reverse('todolist:dashboard'))
+
+        # test if initially counter is 1
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['completed_today'], 1)
+
+        # dicrease
+        response = self.c.get(reverse('todolist:clean_completed_task', args=[ctask.pk]))
+        self.assertNotEqual(response.status_code, 404)
+
+        # test if reduction counted
+        response = self.c.get(reverse('todolist:dashboard'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['completed_today'], 0)
+
+    def test_completed_today_reset(self):
+        '''Test if completed today counter resets after cleaning all ctasks'''
+        self.login_test_user()
+
+        for i in range(1, 7):
+            ctask = create_completed_task(task_name=f'Task {i}', user=self.user)
+
+        response = self.c.get(reverse('todolist:dashboard'))
+
+        # test if initially counter equals quantity of ctasks
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['completed_today'], 6)
+
+        # reset
+        # type of request doesnt matter, though in the dashboard POST is used to delete all ctasks
+        response = self.c.post(reverse('todolist:clean_completed_task'))
+        self.assertNotEqual(response.status_code, 404)
+
+        # test if counter is 0 indeed
+        response = self.c.get(reverse('todolist:dashboard'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['completed_today'], 0)
 
     def test_no_tasks_completed_recently_message(self):
         '''Testing if proper message is displayed in completed recently tasks container if user havent completed any tasks'''
@@ -686,3 +740,111 @@ class DashboardViewTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertQuerySetEqual(response.context['completed_recently'], tasks[:4])
+
+    def test_completed_recently_when_clean_ctask(self):
+        '''Testing if cleaned ctask dissapears from recently completed tasks'''
+        self.login_test_user()
+
+        ctask = create_completed_task(task_name='Task', user=self.user)
+
+        # test if recent tasks contain ctask initially
+        response = self.c.get(reverse('todolist:dashboard'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerySetEqual(response.context['completed_recently'], [ctask])
+
+        # type of request doesnt matter, though in the dashboard GET is used to delete particular ctask
+        response = self.c.get(reverse('todolist:clean_completed_task', args=[ctask.pk]))
+
+        # test if ctask dissapeared from recently completed
+        response = self.c.get(reverse('todolist:dashboard'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerySetEqual(response.context['completed_recently'], [])
+
+    def test_completed_recently_when_clean_all_ctasks(self):
+        '''Testing if after cleaning all of ctasks they dissapear from recently completed tasks'''
+        ctasks = []
+        self.login_test_user()
+
+        for i in range(1, 5):
+            ctask = create_completed_task(task_name=f'Task {i}', user=self.user)
+            ctasks.append(ctask)
+
+        # test if recent tasks contain ctasks initially
+        response = self.c.get(reverse('todolist:dashboard'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerySetEqual(response.context['completed_recently'], ctasks)
+
+        # clean all ctasks
+        response = self.c.post(reverse('todolist:clean_completed_task'))
+
+        # test if ctasks dissapeared from recently completed
+        response = self.c.get(reverse('todolist:dashboard'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerySetEqual(response.context['completed_recently'], [])
+
+
+class CleanCompletedTaskViewTests(TestCase):
+    def setUp(self):
+        self.c = Client()
+        
+        self.username = 'test_user'
+        self.password = '12345'
+        self.user = User.objects.create_user(username=self.username, password=self.password)
+
+    def login_test_user(self):
+        self.c.login(username=self.username, password=self.password)
+
+    def test_login_required(self):
+        '''Testing if unauthorized user is redirected to login page when trying to access the view'''
+
+        response = self.c.get(reverse('todolist:clean_completed_task'))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith(reverse('todolist:login')))
+
+    def test_clean_ctask(self):
+        '''Testing if cleaning of the completed task with given id works'''
+        self.login_test_user()
+        
+        ctask = create_completed_task(task_name='Task', user=self.user)
+
+        # type of request doesnt matter, though in the dashboard GET is used to delete particular ctask
+        response = self.c.get(reverse('todolist:clean_completed_task', args=[ctask.pk]))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith(reverse('todolist:dashboard')))
+        self.assertQuerySetEqual(CompletedTask.objects.all(), [])
+
+    def test_404_for_cleaning_nonexistent_ctask(self):
+        self.login_test_user()
+
+        response = self.c.get(reverse('todolist:clean_completed_task', args=[1]))
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_clean_all_ctasks(self):
+        '''Testing if all of user`s completed tasks are cleaned if no id provided to the view'''
+        ctasks = []
+        self.login_test_user()
+        
+        for i in range(1, 6):
+            ctask = create_completed_task(task_name=f'Task {i}', user=self.user)
+            ctasks.append(ctask)
+
+        # check all ctasks are initially here
+        self.assertQuerySetEqual(list(CompletedTask.objects.all()), ctasks)
+
+        # type of request doesnt matter, though in the dashboard POST is used to delete all ctasks
+        response = self.c.get(reverse('todolist:clean_completed_task'))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith(reverse('todolist:dashboard')))
+        self.assertQuerySetEqual(CompletedTask.objects.all(), [])
+
+
+
+
