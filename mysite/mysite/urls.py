@@ -22,4 +22,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', RedirectView.as_view(url='tasks')),
     path('tasks/', include('todolist.urls'), name='tasks'),
+    path("convert/", include('guest_user.urls')),
 ]
