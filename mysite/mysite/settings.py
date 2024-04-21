@@ -113,3 +113,12 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = 'todolist:login'
+
+
+# Sessions
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+
+SESSION_COOKIE_AGE = 1209600 # 2 weeks
+
+SESSION_SAVE_EVERY_REQUEST = True

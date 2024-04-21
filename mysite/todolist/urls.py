@@ -19,5 +19,5 @@ urlpatterns = [
     path('logout/', views.LogOutView, name='logout'),
     path('dashboard/', views.DashboardView.as_view(), name='dashboard'),
     path('<int:ctask_id>/clean_completed/', views.CleanCompletedTask, name='clean_completed_task'),
-    path('clean_all_completed/', views.CleanCompletedTask, name='clean_completed_task'),
+    path('clean_all_completed/', views.CleanCompletedTask, name='clean_all_completed_tasks'),
 ]

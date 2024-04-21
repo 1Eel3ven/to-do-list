@@ -8,10 +8,11 @@ from datetime import timedelta
 from .models import Task, TaskGroup
 
 class TaskForm(ModelForm):
+    # make default deadline value for the form the end of current day
     tomorrow = timezone.now().replace(hour=0, minute=0, second=0) + timedelta(days=1)
-    # make default deadline value in the form the end of the day
     deadline = CharField(widget=DateTimeInput(attrs={'type':'datetime-local'}), initial=tomorrow)
 
+    # when form is created, filter the available groups to those that belong to given user
     def __init__(self, *args, user=None, **kwargs):
         super(TaskForm, self).__init__(*args, **kwargs)
 

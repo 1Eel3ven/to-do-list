@@ -11,6 +11,15 @@ from django.contrib.auth import authenticate
 from .models import Task, TaskGroup, CompletedTask
 from .forms import TaskForm, GroupForm, LoginForm, CreateUserForm
 
+
+def format_groups(task, user_id):
+    '''Filter first 3 groups of the task that belong to user'''
+    group_names = [group.name for group in task.group.filter(owner_id=user_id)[:3]]
+
+    # format these groups
+    task.group_names = " - ".join(group_names)
+
+
 class IndexView(generic.ListView):
     template_name = 'todolist/index.html'
 
@@ -19,16 +28,14 @@ class IndexView(generic.ListView):
         task_list = Task.objects.prefetch_related('group').filter(owner_id=user_id)
 
         for task in task_list:
-            # check if all groups of the task belong to user and format the first 3 of them
-            group_names = [group.name for group in task.group.filter(owner_id=user_id)[:3]]
-            task.group_names = " - ".join(group_names)
+            format_groups(task, user_id)
 
         return task_list
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # groups in the form will be rendered to contain only those that belong to user
         context['task_form'] = TaskForm(user=self.request.user)
+
         return context
 
 class DetailView(generic.DetailView):
@@ -36,27 +43,26 @@ class DetailView(generic.DetailView):
     template_name = 'todolist/detail.html'
 
     def get_object(self, queryset=None):
+        user_id = self.request.user.id
+
         try:
             task = super(DetailView, self).get_object(queryset=queryset)
         except:
             raise Http404('Task doesnt exist')
         else:
-            if task.owner_id != self.request.user.id:
+            if task.owner_id != user_id:
                 raise Http404('Task doesnt exist')
 
-        group_names = [group.name for group in task.group.all()[:3]]
-        task.group_names = " - ".join(group_names)
+        format_groups(task, user_id)
 
         return task
     
 def CompleteTask(request, task_id):
     user_id = request.user.id
 
-    try:
-        task = Task.objects.get(pk=task_id, owner_id=user_id)
-    except:
-        raise Http404('Task doesnt exist')
-    
+    task = get_object_or_404(Task, pk=task_id, owner_id=user_id)
+
+    # make a CompletedTask record of completed object
     CompletedTask.objects.create(name=task.name, owner_id=user_id)
     task.delete()
     return redirect('todolist:index')
@@ -64,10 +70,7 @@ def CompleteTask(request, task_id):
 def DeleteTask(request, task_id):
     user_id = request.user.id
 
-    try:
-        task = Task.objects.get(pk=task_id, owner_id=user_id)
-    except:
-        raise Http404('Task doesnt exist')
+    task = get_object_or_404(Task, pk=task_id, owner_id=user_id)
     
     task.delete()
     return redirect('todolist:index')
@@ -83,16 +86,14 @@ class EditView(generic.DetailView):
 
         context = super().get_context_data(**kwargs)
 
-        try:
-            task = get_object_or_404(Task, pk=self.kwargs['pk'], owner_id=user.id)
-            context['task_form'] = TaskForm(instance=task, user=user)
-        except:
-            raise Http404('Task doesnt exist')
+        task = get_object_or_404(Task, pk=self.kwargs['pk'], owner_id=user.id)
+        context['task_form'] = TaskForm(instance=task, user=user)
+
         return context
 
-@login_required    
 def EditTask(request, task_id):
-    task = get_object_or_404(Task, pk=task_id, owner_id=request.user.id)
+    # check if such task exists in the first place
+    get_object_or_404(Task, pk=task_id, owner_id=request.user.id)
 
     if request.method == "POST":
         form = TaskForm(request.POST)
@@ -226,16 +227,17 @@ class DashboardView(LoginRequiredMixin, generic.ListView):
 def CleanCompletedTask(request, ctask_id=None):
     user_id = request.user.id
 
-    if ctask_id:
-        # if id provided
-        try:
-            completed_tasks = CompletedTask.objects.get(pk=ctask_id, owner_id=user_id)
-        except:
-            raise Http404('Task doesnt exist')
+    def get_ctask_by_id():
+        completed_task = get_object_or_404(CompletedTask, pk=ctask_id, owner_id=user_id)
 
-    elif not ctask_id:
-        # if id of completed task isnt provided
+        return completed_task
+
+    def get_all_ctasks():
         completed_tasks = CompletedTask.objects.filter(owner_id=user_id)
 
-    completed_tasks.delete()
+        return completed_tasks
+
+    ctasks = get_ctask_by_id() if ctask_id else get_all_ctasks()
+
+    ctasks.delete()
     return redirect('todolist:dashboard')

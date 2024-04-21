@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils import timezone
-from datetime import timedelta
 from django.contrib.auth import get_user_model
 
 class OwnerMixin(models.Model):
@@ -53,13 +52,10 @@ class Task(OwnerMixin):
         return self.name
 
 class CompletedTask(OwnerMixin):
-    # model that stores info about recently completed task
-    # instance is created by an actual complete view
+    '''Stores info about the task that is completed already'''
 
     name = models.CharField(max_length=50)
     complete_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
-    
-    # Implement everyday cleaning of completed task objects later

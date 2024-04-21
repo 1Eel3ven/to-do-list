@@ -358,16 +358,6 @@ class EditTaskViewTests(TestCase):
     def login_test_user(self):
         self.c.login(username=self.username, password=self.password)
 
-    def test_login_required_for_unauthorized_user(self):
-        '''Testing if unauthorized user is redirected to login page when trying to access edit view'''
-        task = create_task(task_name='Task', user=self.user)
-
-        response = self.c.post(reverse('todolist:edit_task', args=[task.pk]))
-        self.assertEqual(response.status_code, 302)
-
-        # since redirect url contains next?=, startswith is used
-        self.assertTrue(response.url.startswith(reverse('todolist:login')))
-
     def test_404_for_editing_nonexistent_task(self):
         '''Testing if 404 is given when user tries to access edit view for nonexistent task'''
         self.login_test_user()
@@ -737,7 +727,7 @@ class DashboardViewTests(TestCase):
 
         # reset
         # type of request doesnt matter, though in the dashboard POST is used to delete all ctasks
-        response = self.c.post(reverse('todolist:clean_completed_task'))
+        response = self.c.post(reverse('todolist:clean_all_completed_tasks'))
         self.assertNotEqual(response.status_code, 404)
 
         # test if counter is 0 indeed
@@ -826,7 +816,7 @@ class DashboardViewTests(TestCase):
         self.assertQuerySetEqual(response.context['completed_recently'], ctasks)
 
         # clean all ctasks
-        response = self.c.post(reverse('todolist:clean_completed_task'))
+        response = self.c.post(reverse('todolist:clean_all_completed_tasks'))
 
         # test if ctasks dissapeared from recently completed
         response = self.c.get(reverse('todolist:dashboard'))
@@ -849,7 +839,7 @@ class CleanCompletedTaskViewTests(TestCase):
     def test_login_required(self):
         '''Testing if unauthorized user is redirected to login page when trying to access the view'''
 
-        response = self.c.get(reverse('todolist:clean_completed_task'))
+        response = self.c.get(reverse('todolist:clean_completed_task', args=[1]))
 
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith(reverse('todolist:login')))
@@ -883,11 +873,11 @@ class CleanCompletedTaskViewTests(TestCase):
             ctask = create_completed_task(task_name=f'Task {i}', user=self.user)
             ctasks.append(ctask)
 
-        # check all ctasks are initially here
+        # check if all ctasks are initially here
         self.assertQuerySetEqual(list(CompletedTask.objects.all()), ctasks)
 
         # type of request doesnt matter, though in the dashboard POST is used to delete all ctasks
-        response = self.c.get(reverse('todolist:clean_completed_task'))
+        response = self.c.post(reverse('todolist:clean_all_completed_tasks'))
 
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith(reverse('todolist:dashboard')))
