@@ -4,8 +4,6 @@ from django.views import generic
 from django.urls import reverse
 
 from django.contrib.auth.models import auth
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 
@@ -37,6 +35,27 @@ def delete_guest_user(guest_user):
     if is_guest_user(guest_user):
         user = User.objects.get(pk=guest_user.id)
         user.delete()
+
+def convert_guest_data(guest, user):
+    '''Converts tasks and groups of guest user to other user'''
+
+    def convert_guest_tasks(guest, user):
+        tasks = Task.objects.filter(owner_id=guest.id)
+
+        for task in tasks:
+            task.owner_id = user.id
+            task.save()
+
+    def convert_guest_groups(guest, user):
+        groups = TaskGroup.objects.filter(owner_id=guest.id)
+
+        for group in groups:
+            group.owner_id = user.id
+            group.save()
+
+    if is_guest_user(guest):
+        convert_guest_tasks(guest, user)
+        convert_guest_groups(guest, user)
 
 
 class IndexView(AllowGuestUserMixin, generic.ListView):
@@ -180,13 +199,16 @@ def DeleteGroup(request):
 
 @guest_user_required
 def RegisterView(request):
+    guest = request.user
     context = {}
 
     if request.method == 'POST':
         form = CreateUserForm(request.POST)
 
         if form.is_valid():
-            form.save()
+            user = form.save()
+            convert_guest_data(guest, user)
+
             return redirect(reverse('todolist:login'))
         else:
             # passing text of possible errors to the template
@@ -205,8 +227,8 @@ def RegisterView(request):
 
 @guest_user_required
 def LoginView(request):
-    context = {}
     guest = request.user
+    context = {}
 
     if request.method == 'POST':
         form = LoginForm(data=request.POST)
