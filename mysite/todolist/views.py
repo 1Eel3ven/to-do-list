@@ -4,9 +4,12 @@ from django.views import generic
 from django.urls import reverse
 
 from django.contrib.auth.models import auth
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
+
+from guest_user.functions import is_guest_user
+from guest_user.decorators import allow_guest_user, regular_user_required, guest_user_required
+from guest_user.mixins import AllowGuestUserMixin, RegularUserRequiredMixin
 
 from .models import Task, TaskGroup, CompletedTask
 from .forms import TaskForm, GroupForm, LoginForm, CreateUserForm
@@ -19,8 +22,43 @@ def format_groups(task, user_id):
     # format these groups
     task.group_names = " - ".join(group_names)
 
+def make_completed_task_record(task):
+    '''Makes completed task record for given task'''
+    task_name = task.name
+    task_owner = task.owner_id
 
-class IndexView(generic.ListView):
+    CompletedTask.objects.create(name=task_name, owner_id=task_owner)
+
+def delete_guest_user(guest_user):
+    '''Deletes user if it is guest indeed'''
+
+    if is_guest_user(guest_user):
+        user = User.objects.get(pk=guest_user.id)
+        user.delete()
+
+def convert_guest_data(guest, user):
+    '''Converts tasks and groups of guest user to other user'''
+
+    def convert_guest_tasks(guest, user):
+        tasks = Task.objects.filter(owner_id=guest.id)
+
+        for task in tasks:
+            task.owner_id = user.id
+            task.save()
+
+    def convert_guest_groups(guest, user):
+        groups = TaskGroup.objects.filter(owner_id=guest.id)
+
+        for group in groups:
+            group.owner_id = user.id
+            group.save()
+
+    if is_guest_user(guest):
+        convert_guest_tasks(guest, user)
+        convert_guest_groups(guest, user)
+
+
+class IndexView(AllowGuestUserMixin, generic.ListView):
     template_name = 'todolist/index.html'
 
     def get_queryset(self):
@@ -38,7 +76,7 @@ class IndexView(generic.ListView):
 
         return context
 
-class DetailView(generic.DetailView):
+class DetailView(AllowGuestUserMixin, generic.DetailView):
     model = Task
     template_name = 'todolist/detail.html'
 
@@ -56,17 +94,21 @@ class DetailView(generic.DetailView):
         format_groups(task, user_id)
 
         return task
-    
+
+@allow_guest_user
 def CompleteTask(request, task_id):
-    user_id = request.user.id
+    user = request.user
 
-    task = get_object_or_404(Task, pk=task_id, owner_id=user_id)
+    task = get_object_or_404(Task, pk=task_id, owner_id=user.id)
 
-    # make a CompletedTask record of completed object
-    CompletedTask.objects.create(name=task.name, owner_id=user_id)
+    # if user is registered, make a completed task record
+    if not(is_guest_user(user)):
+        make_completed_task_record(task)
+
     task.delete()
     return redirect('todolist:index')
 
+@allow_guest_user
 def DeleteTask(request, task_id):
     user_id = request.user.id
 
@@ -75,7 +117,7 @@ def DeleteTask(request, task_id):
     task.delete()
     return redirect('todolist:index')
 
-class EditView(generic.DetailView):
+class EditView(AllowGuestUserMixin, generic.DetailView):
     # Loads a page with form for editing task instance
     model = Task
     queryset = Task.objects.all()
@@ -91,6 +133,7 @@ class EditView(generic.DetailView):
 
         return context
 
+@allow_guest_user
 def EditTask(request, task_id):
     # check if such task exists in the first place
     get_object_or_404(Task, pk=task_id, owner_id=request.user.id)
@@ -112,7 +155,7 @@ def EditTask(request, task_id):
 
         return HttpResponseRedirect(reverse('todolist:index'))
 
-@login_required
+@allow_guest_user
 def CreateTask(request):
     if request.method == "POST":
         form = TaskForm(request.POST)
@@ -128,7 +171,7 @@ def CreateTask(request):
 
     return HttpResponseRedirect(reverse('todolist:index'))
 
-@login_required
+@allow_guest_user
 def AddGroup(request):
     if request.method == "POST":
 
@@ -140,7 +183,7 @@ def AddGroup(request):
     # redirect to the page where user`ve been
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
-@login_required
+@allow_guest_user
 def DeleteGroup(request):
     if request.method == "POST":
 
@@ -154,17 +197,21 @@ def DeleteGroup(request):
 
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
-
+@guest_user_required
 def RegisterView(request):
+    guest = request.user
     context = {}
 
     if request.method == 'POST':
         form = CreateUserForm(request.POST)
 
         if form.is_valid():
-            form.save()
+            user = form.save()
+            convert_guest_data(guest, user)
+
             return redirect(reverse('todolist:login'))
         else:
+            # passing text of possible errors to the template
             error_text = form.errors.get_json_data(escape_html=True)
             error_messages = []
 
@@ -178,7 +225,9 @@ def RegisterView(request):
 
     return render(request, 'todolist/register.html', context=context)
 
+@guest_user_required
 def LoginView(request):
+    guest = request.user
     context = {}
 
     if request.method == 'POST':
@@ -192,6 +241,7 @@ def LoginView(request):
 
             if user is not None:
                 auth.login(request, user)
+                delete_guest_user(guest)
 
                 return redirect(reverse('todolist:index'))
         else:
@@ -201,12 +251,13 @@ def LoginView(request):
 
     return render(request, 'todolist/login.html', context=context)
 
+@regular_user_required
 def LogOutView(request):
     auth.logout(request)
 
     return redirect(reverse('todolist:index'))
 
-class DashboardView(LoginRequiredMixin, generic.ListView):
+class DashboardView(RegularUserRequiredMixin, generic.ListView):
     template_name = 'todolist/dashboard.html'
 
     def get_queryset(self):
@@ -223,7 +274,7 @@ class DashboardView(LoginRequiredMixin, generic.ListView):
 
         return context
 
-@login_required    
+@regular_user_required
 def CleanCompletedTask(request, ctask_id=None):
     user_id = request.user.id
 
