@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'todolist.apps.TodolistConfig',
+    'guest_user',
 ]
 
 MIDDLEWARE = [
@@ -112,7 +113,19 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+AUTHENTICATION_BACKENDS = [
+   "django.contrib.auth.backends.ModelBackend",
+   "guest_user.backends.GuestBackend",
+]
+
+
+# Auth redirects
+
 LOGIN_URL = 'todolist:login'
+
+GUEST_USER_CONVERT_URL = 'todolist:login'
+
+LOGIN_REDIRECT_URL = 'todolist:dashboard'
 
 
 # Sessions
