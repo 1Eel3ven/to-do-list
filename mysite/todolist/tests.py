@@ -8,7 +8,6 @@ from django.forms.models import model_to_dict
 from django.contrib.auth.models import User
 
 from .models import Task, TaskGroup, CompletedTask
-from guest_user.models import Guest
 
 def create_task(task_name, desc='desc', pr='Medium', days=5, groups=None, user=None):
     '''Creates a task with deadline offset to now;
@@ -46,16 +45,10 @@ def create_group(group_name, user=None):
     return group
 
 
-class IndexTaskViewUserTests(TestCase):
+# index page tests where user isnt required
+class IndexTaskViewTests(TestCase):
     def setUp(self):
         self.c = Client()
-        
-        self.username = 'test_user'
-        self.password = '12345'
-        self.user = User.objects.create_user(username=self.username, password=self.password)
-
-    def login_test_user(self):
-        self.c.login(username=self.username, password=self.password)
 
     def test_no_tasks(self):
         '''Testing if an appropriate message displayed when no tasks exist'''
@@ -67,9 +60,7 @@ class IndexTaskViewUserTests(TestCase):
 
     def test_outdated_task(self):
         '''Testing if outdated task is displayed with Outdated mark'''
-        self.login_test_user()
-
-        task = create_task(task_name='Task', days=-5, user=self.user)
+        task = create_task(task_name='Task', days=-5)
         response = self.c.get(reverse('todolist:index'))
 
         self.assertContains(response, 'Outdated')
@@ -77,18 +68,14 @@ class IndexTaskViewUserTests(TestCase):
 
     def test_not_outdated_task(self):
         '''Testing if task with deadline in the future is displayed on index'''
-        self.login_test_user()
-
-        task = create_task(task_name='Task', user=self.user)
+        task = create_task(task_name='Task')
         response = self.c.get(reverse('todolist:index'))
 
         self.assertQuerySetEqual(response.context['task_list'], [task])
 
     def test_task_without_groups(self):
         '''Testing if an appropriate message displayed when task doesnt have groups'''
-        self.login_test_user()
-
-        task = create_task(task_name='Task', user=self.user)
+        task = create_task(task_name='Task')
         response = self.c.get(reverse('todolist:index'))
 
         self.assertContains(response, 'No groups')
@@ -96,11 +83,9 @@ class IndexTaskViewUserTests(TestCase):
 
     def test_task_with_group(self):
         '''Testing if group name of the task is displayed'''
-        self.login_test_user()
+        group = create_group('TestGroup')
 
-        group = create_group('TestGroup', user=self.user)
-
-        task = create_task(task_name='Task', groups=[group], user=self.user)
+        task = create_task(task_name='Task', groups=[group])
         response = self.c.get(reverse('todolist:index'))
 
         self.assertContains(response, group.name)
@@ -108,16 +93,24 @@ class IndexTaskViewUserTests(TestCase):
 
     def test_task_with_groups(self):
         '''Testing if names of groups of the task are displayed'''
-        self.login_test_user()
-
-        group1 = create_group('TestGroup 1', user=self.user)
-        group2 = create_group('TestGroup 2', user=self.user)
+        group1 = create_group('TestGroup 1')
+        group2 = create_group('TestGroup 2')
 
         task = create_task(task_name='Task', groups=[group1, group2])
         response = self.c.get(reverse('todolist:index'))
 
         self.assertContains(response, f'{group1.name} - {group2.name}')
         self.assertQuerySetEqual(response.context['task_list'], [task])
+
+
+# index page tests with user
+class IndexTaskViewUserTests(TestCase):
+    def setUp(self):
+        self.c = Client()
+        
+        self.username = 'test_user'
+        self.password = '12345'
+        self.user = User.objects.create_user(username=self.username, password=self.password)
 
     def test_task_visibility_to_unauthorized_user(self):
         '''Testing if task isnt displayed to unathorized user'''
@@ -128,7 +121,7 @@ class IndexTaskViewUserTests(TestCase):
 
     def test_task_visibility_to_logged_in_user(self):
         '''Testing if task is displayed to its owner'''
-        self.login_test_user()
+        self.c.login(username=self.username, password=self.password)
 
         task = create_task(task_name='Task', user=self.user)
         response = self.c.get(reverse('todolist:index'))
@@ -139,7 +132,7 @@ class IndexTaskViewUserTests(TestCase):
         '''Testing if task isnt displayed to non-owners'''
         self.owner = User.objects.create_user(username='owner_user', password='abcdeg')
 
-        self.login_test_user()
+        self.c.login(username=self.username, password=self.password)
 
         create_task(task_name='Task', user=self.owner)
         response = self.c.get(reverse('todolist:index'))
@@ -438,6 +431,14 @@ class CreateTaskViewTests(TestCase):
     def login_test_user(self):
         self.c.login(username=self.username, password=self.password)
 
+    def test_login_required_for_unauthorized_user(self):
+        '''Testing if unauthorized user is redirected to login page when trying to create a task'''
+
+        response = self.c.post(reverse('todolist:add_group'), {})
+        self.assertEqual(response.status_code, 302)
+
+        self.assertTrue(response.url.startswith(reverse('todolist:login')))
+
     def test_task_create(self):
         '''Testing if task create works properly'''
         self.login_test_user()
@@ -515,6 +516,14 @@ class AddGroupViewTests(TestCase):
         self.password = '12345'
         self.user = User.objects.create_user(username=self.username, password=self.password)
 
+    def test_login_required_for_unauthorized_user(self):
+        '''Testing if unauthorized user is redirected to login page when trying to add a group'''
+
+        response = self.c.post(reverse('todolist:add_group'), {'group_name': 'TestGroup'})
+        self.assertEqual(response.status_code, 302)
+
+        self.assertTrue(response.url.startswith(reverse('todolist:login')))
+
     def test_added_group_owner(self):
         '''Testing if the group after creation contains the user who added it as owner'''
         self.c.login(username=self.username, password=self.password)
@@ -538,6 +547,16 @@ class DeleteGroupViewTests(TestCase):
         self.password = '12345'
         self.user = User.objects.create_user(username=self.username, password=self.password)
 
+    def test_login_required_for_unauthorized_user(self):
+        '''Testing if unauthorized user is redirected to login page when trying to delete a group
+        (unauthorized users cant see any groups, so this test made just in case)'''
+        group = create_group(group_name='TestGroup')
+
+        response = self.c.post(reverse('todolist:delete_group'), {'group': group.pk})
+        self.assertEqual(response.status_code, 302)
+
+        self.assertTrue(response.url.startswith(reverse('todolist:login')))
+
     def test_group_delete(self):
         '''Testing if group delete works properly'''
         self.c.login(username=self.username, password=self.password)
@@ -548,7 +567,7 @@ class DeleteGroupViewTests(TestCase):
         response = self.c.post(reverse('todolist:delete_group'), {'group': [group1.pk, group2.pk]})
 
         self.assertEqual(response.status_code, 302)
-        # the view redirects user to the page where he`ve been, so just testing if its not login_required that happened
+        # the views redirects user to the page where he`ve been, so just testing if its not login_required that happened
         self.assertFalse(response.url.startswith(reverse('todolist:login')))
 
         self.assertQuerySetEqual(TaskGroup.objects.all(), [])
@@ -557,18 +576,9 @@ class DeleteGroupViewTests(TestCase):
 class RegisterViewTests(TestCase):
     def setUp(self):
         self.c = Client()
-        # Guest user is required to access the view
-        self.guest = Guest.objects.create_guest_user()
-
-    def login_test_guest(self):
-        '''To avoid sending request from anonymous user, should login guest explicitly'''
-        self.c.force_login(self.guest)
 
     def test_user_creation(self):
         '''Testing if register creates user properly'''
-
-        self.login_test_guest()
-
         context = {
             'username': 'JohnDoe', 
             'email': 'jdoe97@gmail.com', 
@@ -587,19 +597,16 @@ class RegisterViewTests(TestCase):
 
     def test_error_message_display(self):
         '''Testing if error message is displayed on the page when validation of form fails'''
-
-        self.login_test_guest()
-
         context = {
                     'username': 'JohnDoe', 
-                    'email': 'jdoe@gmail.com', 
+                    'email': 'jdoe97@gmail.com', 
                     'password1': '123', 
                     'password2': '123',
                 }
         
         response = self.c.post(reverse('todolist:register'), context)
 
-        # test if user gets rendered with error text page
+        # test if user is redirected back to the register
         self.assertEqual(response.status_code, 200)
         self.assertEqual(resolve(response.request['PATH_INFO']).url_name, 'register')
 

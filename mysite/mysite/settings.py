@@ -27,7 +27,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'todolist.apps.TodolistConfig',
-    'guest_user'
 ]
 
 MIDDLEWARE = [
@@ -72,24 +71,6 @@ DATABASES = {
 }
 
 
-# Auth backend
-
-AUTHENTICATION_BACKENDS = [
-   "django.contrib.auth.backends.ModelBackend",
-   # it should be the last entry to prevent unauthorized access
-   "guest_user.backends.GuestBackend",
-]
-
-LOGIN_URL = 'todolist:login'
-
-
-# Guest settings
-
-GUEST_USER_CONVERT_URL = 'todolist:login'
-
-GUEST_USER_REQUIRED_USER_URL = 'todolist:dashboard'
-
-
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
@@ -130,6 +111,8 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_URL = 'todolist:login'
 
 
 # Sessions
