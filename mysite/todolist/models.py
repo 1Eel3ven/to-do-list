@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib import admin
 from django.contrib.auth import get_user_model
 
 class OwnerMixin(models.Model):
@@ -44,6 +45,11 @@ class Task(OwnerMixin):
 
     group = models.ManyToManyField(TaskGroup, blank=True)
 
+    @admin.display(
+        boolean=True,
+        ordering="deadline",
+        description="Is outdated",
+    )
     def is_outdated(self):
         return self.deadline <= timezone.now()
 

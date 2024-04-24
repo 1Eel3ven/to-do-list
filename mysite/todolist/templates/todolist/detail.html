@@ -5,12 +5,9 @@
         <div>
             <h2>{{ task.name }}</h2>
         </div>
+        
         <div>
-            <h3>Groups:</h3>
-            <p>{{ task.group_names }}</p>
-        </div>
-        <div>
-            <h3>Description</h3>
+            <h3>Description:</h3>
             <p>
                 {% if task.description %}
                     {{ task.description }}
@@ -19,6 +16,13 @@
                 {% endif %}
             </p>
         </div>
+
+        {% if task.group_names %}
+        <div>
+            <h3>Groups:</h3>
+            <p>{{ task.group_names }}</p>
+        </div>
+        {% endif %}
 
         <div class='detail_time_info'>
             Created: {{ task.creation_date }}<br>
